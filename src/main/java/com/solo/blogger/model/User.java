@@ -1,5 +1,6 @@
 package com.solo.blogger.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,15 +27,19 @@ public class User {
     private String password;
 
     @OneToMany(mappedBy = "id",cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnore
     private List<Post> posts;
 
     @OneToMany(mappedBy = "id",cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnore
     private List<Comment> comments;
 
     @OneToMany(mappedBy = "subscriber",cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnore
     private Set<Subscription> subscriptions;
 
     @OneToMany(mappedBy = "blogger",cascade = CascadeType.ALL,orphanRemoval = true)
+    @JsonIgnore
     private Set<Subscription> subscribers;
 
 

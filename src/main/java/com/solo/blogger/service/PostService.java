@@ -7,9 +7,11 @@ import com.solo.blogger.model.User;
 import com.solo.blogger.repository.PostRepository;
 import com.solo.blogger.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,6 +39,27 @@ public class PostService {
                 .build();
 
         return postRepository.save(post);
+    }
+
+    @Async("postExecutor")
+    public CompletableFuture<Post> addPostV2(PostDto postDto){
+        System.out.println("Thread Name: " + Thread.currentThread().getName());
+        System.out.println("add post service called");
+        User user = userRepository.findById(postDto.getUser_id())
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + postDto.getUser_id()));
+        System.out.println("user: "+user);
+        Post post=Post.builder()
+                .user(user)
+                .Title(postDto.getTitle())
+                .Content(postDto.getContent())
+                .Category(postDto.getCategory())
+                .Tags(postDto.getTags())
+                .picture(postDto.getPicture())
+                .createdAt(new Date())
+                .build();
+
+        Post savedPost = postRepository.save(post);
+        return CompletableFuture.completedFuture(savedPost);
     }
 
     public List<PostDto> getAllPost(){

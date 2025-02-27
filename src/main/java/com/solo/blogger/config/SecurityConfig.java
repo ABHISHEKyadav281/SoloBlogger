@@ -22,7 +22,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())  // Disable CSRF for testing (only for development)
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/subscription/v1/**").permitAll()
-                        .requestMatchers("/post/v1/**").permitAll()
+                        .requestMatchers("/post/**").permitAll()
                         .requestMatchers("comment/v1/**").permitAll()
                         .requestMatchers("/auth/v1/signup", "/auth/v1/signin").permitAll()
                         .anyRequest().authenticated()
