@@ -34,7 +34,16 @@ public class SubscriptionService {
         subscriptionRepository.save(subscription);
     }
 
+    public void unSubscribe(Long subscriberId, Long bloggerId){
+        if(subscriberId.equals(bloggerId)){
+            throw new IllegalArgumentException("You can unfollow yourself");
+        }
+        User subscriber=userRepository.findById(subscriberId).orElseThrow(()->new RuntimeException("subscriber not found !"));
+        User blogger=userRepository.findById(bloggerId).orElseThrow(()->new RuntimeException("blogger not found !"));
 
+        Subscription subscription=subscriptionRepository.findBySubscriberAndBlogger(subscriber,blogger).orElseThrow(()->new RuntimeException("You are not subscribed to this blogger"));
+        subscriptionRepository.delete(subscription);
+    }
 
 
 

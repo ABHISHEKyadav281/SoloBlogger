@@ -21,6 +21,8 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable())  // Disable CSRF for testing (only for development)
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/reaction/post/**").permitAll()
+                        .requestMatchers("/reaction/comment/**").permitAll()
                         .requestMatchers("/subscription/v1/**").permitAll()
                         .requestMatchers("/post/**").permitAll()
                         .requestMatchers("comment/v1/**").permitAll()
