@@ -11,13 +11,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Service
-public class UserService {
+public class UserService  {
 
     @Autowired
     private UserRepository userRepository;
-
+//
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
+//
     public User register(UserDto userDto){
 
         User user = User.builder()
