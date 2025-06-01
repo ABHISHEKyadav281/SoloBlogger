@@ -18,4 +18,10 @@ public class SubscriptionController {
         subscriptionService.subscribe(subscriberId,bloggerId);
         return ResponseEntity.ok("Subscribed succesfully");
     }
+
+    @DeleteMapping("unSubscribe/{subscriberId}/{bloggerId}")
+    public ResponseEntity<?> unSubscribe(@PathVariable Long subscriberId, @PathVariable Long bloggerId){
+        subscriptionService.unSubscribe(subscriberId,bloggerId);
+        return ResponseEntity.ok("unSubscribed successfully");
+    }
 }
