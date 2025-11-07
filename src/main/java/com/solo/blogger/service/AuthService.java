@@ -1,11 +1,15 @@
 package com.solo.blogger.service;
 
+import com.solo.blogger.dto.appResponse.SuccessResponse;
 import com.solo.blogger.utils.JwtUtil;
 import com.solo.blogger.dto.AuthRequest;
 import com.solo.blogger.model.User;
 import com.solo.blogger.repository.UserRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.Map;
 
 @Service
 public class AuthService {
@@ -21,7 +25,7 @@ public class AuthService {
         this.passwordEncoder = new BCryptPasswordEncoder();  // ✅ Initializes BCrypt
     }
 
-    public String login(AuthRequest authRequest) {
+    public ResponseEntity<?> login (AuthRequest authRequest) {
         User user = userRepository.findByUsername(authRequest.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -29,7 +33,8 @@ public class AuthService {
             throw new RuntimeException("Invalid Password");
         }
 
-        return jwtUtil.generateToken(user.getUsername());
+        SuccessResponse res= jwtUtil.generateToken(user.getUsername(),user.getId());
+        return ResponseEntity.ok(res);
     }
 }
 

@@ -18,21 +18,21 @@ public class CommentController {
     private CommentService commentService;
 
     @PostMapping(value = "/addComment")
-    public ResponseEntity<?>AddComment(@RequestBody CommentDto commentDto){
-        Comment savedComment= commentService.addComment(commentDto);
+    public ResponseEntity<?>AddComment(@RequestBody CommentDto commentDto,@RequestHeader("userId") Long userId){
+        Comment savedComment= commentService.addComment(commentDto,userId);
         return ResponseEntity.ok(ApiResponseDto.success("Comment added succesfully!"));
     }
 
     @PostMapping(value = "/replyComment")
     public ResponseEntity<?>ReplyComment(@RequestBody CommentDto commentDto){
-        Comment savedComment= commentService.replyComment(commentDto);
+//        Comment savedComment= commentService.replyComment(commentDto);
         return ResponseEntity.ok(ApiResponseDto.success("Comment reply added succesfully!"));
     }
 
     @DeleteMapping(value = "/deleteComment")
     public ResponseEntity<?>deleteComment(@RequestBody CommentDto commentDto){
         System.out.println("delete comment api called");
-        commentService.deleteComment(commentDto);
+//        commentService.deleteComment(commentDto);
         return ResponseEntity.ok(ApiResponseDto.success("Comment deleted succesfully!"));
     }
 }

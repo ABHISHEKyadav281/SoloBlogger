@@ -2,8 +2,7 @@ package com.solo.blogger.model;
 
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -11,17 +10,25 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "Subscriptions",uniqueConstraints = @UniqueConstraint(columnNames = {"subscriber_id","blogger_id"}))
+@Table(name = "subscriptions")
 public class Subscription {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "blogger_id", nullable = false)
+    private User blogger;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscriber_id", nullable = false)
     private User subscriber;
 
-    @ManyToOne
-    @JoinColumn(name = "blogger_id", nullable = false)
-    private User blogger;
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 }

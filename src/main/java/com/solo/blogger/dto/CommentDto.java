@@ -13,8 +13,6 @@ public class CommentDto {
 
     private String content;
 
-    private long user_id;
-
     private long post_id;
 
     private long parent_comment_id;
