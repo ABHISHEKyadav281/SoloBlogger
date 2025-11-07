@@ -2,9 +2,11 @@ package com.solo.blogger.service;
 
 
 import com.solo.blogger.dto.UserDto;
+import com.solo.blogger.dto.appResponse.SuccessResponse;
 import com.solo.blogger.model.User;
 import com.solo.blogger.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,7 +20,7 @@ public class UserService  {
 //
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 //
-    public User register(UserDto userDto){
+    public ResponseEntity<?> register(UserDto userDto){
 
         User user = User.builder()
                 .username(userDto.getUsername())
@@ -26,7 +28,8 @@ public class UserService  {
                 .password(passwordEncoder.encode(userDto.getPassword()))
                 .build();
 
-        return userRepository.save(user);
+        userRepository.save(user);
+        return ResponseEntity.ok().body(SuccessResponse.builder().statusCode("202").data("User Registered successfully").build());
     }
 
 }

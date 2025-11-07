@@ -7,7 +7,7 @@ import lombok.*;
 import java.util.*;
 
 @Entity
-@Table(name="Users")
+@Table(name = "users")
 @Getter
 @Setter
 @Builder
@@ -15,8 +15,9 @@ import java.util.*;
 @AllArgsConstructor
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(unique = true, nullable = false)
     private String username;
 
@@ -25,22 +26,5 @@ public class User {
 
     @Column(nullable = false)
     private String password;
-
-    @OneToMany(mappedBy = "id",cascade = CascadeType.ALL,orphanRemoval = true)
-    @JsonIgnore
-    private List<Post> posts;
-
-    @OneToMany(mappedBy = "id",cascade = CascadeType.ALL,orphanRemoval = true)
-    @JsonIgnore
-    private List<Comment> comments;
-
-    @OneToMany(mappedBy = "subscriber",cascade = CascadeType.ALL,orphanRemoval = true)
-    @JsonIgnore
-    private Set<Subscription> subscriptions;
-
-    @OneToMany(mappedBy = "blogger",cascade = CascadeType.ALL,orphanRemoval = true)
-    @JsonIgnore
-    private Set<Subscription> subscribers;
-
 
 }

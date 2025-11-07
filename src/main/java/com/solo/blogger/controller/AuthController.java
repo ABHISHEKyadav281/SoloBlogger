@@ -3,7 +3,9 @@ package com.solo.blogger.controller;
 
 import com.solo.blogger.dto.AuthRequest;
 import com.solo.blogger.dto.UserDto;
+import com.solo.blogger.dto.appResponse.SuccessResponse;
 import com.solo.blogger.model.User;
+import com.solo.blogger.repository.UserRepository;
 import com.solo.blogger.service.AuthService;
 import com.solo.blogger.service.UserService;
 import com.solo.blogger.utils.JwtUtil;
@@ -22,6 +24,9 @@ public class AuthController {
     private UserService userService;
 
     @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
     private AuthService authService;
 
     @Autowired
@@ -30,16 +35,14 @@ public class AuthController {
     @PostMapping(value = "signup")
     public ResponseEntity<?> Register(@RequestBody UserDto userDto){
         System.out.println("hii abhi");
-        User savedUser = userService.register(userDto);
-        return ResponseEntity.ok(savedUser);
+        return userService.register(userDto);
     }
 
     @PostMapping("/signin")
-    public String login(@RequestBody AuthRequest authRequest) {
+    public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
         System.out.println("hi login api");
-        // Validate user credentials (implement your user service)
-        String token = jwtUtil.generateToken(authRequest.getUsername());
-        return token;
+       return authService.login(authRequest);
+
     }
 
 }
