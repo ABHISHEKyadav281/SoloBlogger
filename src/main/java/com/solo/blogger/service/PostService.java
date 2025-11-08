@@ -11,6 +11,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +24,9 @@ public class PostService {
 
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+
+    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final EmailService emailService;
 
     public Post createPost(PostDto postDto, Long userId) {
         User user = userRepository.findById(userId)
@@ -46,7 +50,12 @@ public class PostService {
                 .viewsCount(0L)
                 .build();
 
-        return postRepository.save(post);
+        Post savedPost= postRepository.save(post);
+        String message= String.format("user %s created a new post: %s", user.getUsername(), post.getTitle());
+        kafkaTemplate.send("post-created", message);
+//        emailService.sendNewPostNotification("yyadavabhishek9@gmail.com" ,user.getUsername(),post.getTitle());
+
+        return savedPost;
     }
 
     @Transactional(readOnly = true)
