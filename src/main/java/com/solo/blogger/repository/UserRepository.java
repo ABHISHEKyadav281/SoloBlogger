@@ -1,8 +1,7 @@
 package com.solo.blogger.repository;
 
-import com.solo.blogger.model.User;
+import com.solo.blogger.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;

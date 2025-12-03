@@ -1,4 +1,4 @@
-package com.solo.blogger.dto.appResponse;
+package com.solo.blogger.dto.responseFactory;
 
 public class ErrorResponse  {
         String errCode ;

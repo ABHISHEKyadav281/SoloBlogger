@@ -1,6 +1,6 @@
 package com.solo.blogger.repository;
 
-import com.solo.blogger.model.Post;
+import com.solo.blogger.entity.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -27,7 +27,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findByCategoryAndFeatured(String category, Boolean featured, Pageable pageable);
 
     // Find by user ID
-    @Query("SELECT p FROM Post p WHERE p.user.id = :userId")
+    @Query("SELECT p FROM Post p WHERE p.userId = :userId")
     Page<Post> findByUserId(@Param("userId") Long userId, Pageable pageable);
 
     // Search posts by title or content
@@ -38,28 +38,10 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> searchPosts(@Param("search") String search, Pageable pageable);
 
     // Count posts by user
-    @Query("SELECT COUNT(p) FROM Post p WHERE p.user.id = :userId")
+    @Query("SELECT COUNT(p) FROM Post p WHERE p.userId = :userId")
     Long countByUserId(@Param("userId") Long userId);
 
     // Find posts by tag
     @Query("SELECT p FROM Post p JOIN p.tags t WHERE t = :tag")
     Page<Post> findByTag(@Param("tag") String tag, Pageable pageable);
 }
-
-
-
-//package com.solo.blogger.repository;
-//
-//import com.solo.blogger.model.Post;
-//import org.springframework.data.jpa.repository.JpaRepository;
-//import org.springframework.stereotype.Repository;
-//
-//import java.util.List;
-//import java.util.Optional;
-//
-//@Repository
-//public interface PostRepository extends JpaRepository<Post,String> {
-//
-//    Optional<Post> findById(long id);
-//    List<Post> findByUserId(long user_id);
-//}
