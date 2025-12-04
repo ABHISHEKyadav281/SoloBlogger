@@ -1,4 +1,4 @@
-package com.solo.blogger.model;
+package com.solo.blogger.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
