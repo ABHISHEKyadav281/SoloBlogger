@@ -27,6 +27,14 @@ public class ReactionService {
 
     }
 
+    public Long postReactionCount(long postId){
+        return postLikeRepository.countByPostId(postId);
+    }
+
+    public boolean postIsLiked(Long userId,Long postId){
+        return postLikeRepository.existsByUserIdAndPostId(userId,postId);
+    }
+
 //    public void reactToComment(Long userId, Long commentId, ReactionType reactionType) {
 //        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 //        Comment comment = commentRepository.findById(commentId).orElseThrow(() -> new RuntimeException("Comment not found"));

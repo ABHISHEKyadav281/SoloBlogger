@@ -1,4 +1,4 @@
-package com.solo.blogger.model;
+package com.solo.blogger.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -18,10 +18,10 @@ public class Bookmark {
     private Long id;
 
     @Column(name = "post_id")
-    private Long post;
+    private Long postId;
 
     @Column(name = "user_id")
-    private Long user;
+    private Long userId;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;

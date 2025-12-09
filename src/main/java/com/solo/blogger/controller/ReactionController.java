@@ -22,6 +22,19 @@ public class ReactionController {
         return ResponseEntity.ok(ApiResponseDto.success("Reaction updated successfully"));
     }
 
+    @GetMapping("/post/like/count")
+    public ResponseEntity<?> reactToPost(@RequestParam Long postId) {
+        long count=reactionService.postReactionCount( postId);
+        return ResponseEntity.ok(ApiResponseDto.success(count));
+    }
+
+    @GetMapping("post/isLiked")
+    public ResponseEntity<?> isLiked(@RequestParam Long postId,
+                                         @RequestAttribute("userId") Long userId) {
+        boolean isLiked=reactionService.postIsLiked(userId, postId);
+        return ResponseEntity.ok(ApiResponseDto.success(isLiked));
+    }
+
 //    @PostMapping("/comment/{commentId}/{reactionType}")
 //    public ResponseEntity<?> reactToComment(@PathVariable Long commentId,
 //                                                 @PathVariable ReactionType reactionType,

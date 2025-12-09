@@ -199,7 +199,7 @@ public class PostService {
 //                .build();
 //    }
 
-    private PostResponseDto convertToResponseDto(Post post) {
+    public PostResponseDto convertToResponseDto(Post post) {
         User user = userRepository.findById(post.getUserId()).orElse(null);
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder()
                 .id(post.getId())
