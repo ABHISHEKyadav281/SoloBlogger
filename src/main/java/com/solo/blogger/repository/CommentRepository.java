@@ -1,6 +1,6 @@
 package com.solo.blogger.repository;
 
-import com.solo.blogger.model.Comment;
+import com.solo.blogger.entity.Comment;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

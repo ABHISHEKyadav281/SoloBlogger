@@ -1,12 +1,14 @@
 package com.solo.blogger.service;
 
-import com.solo.blogger.dto.PostDto;
-import com.solo.blogger.dto.PostResponseDto;
-import com.solo.blogger.model.Post;
-import com.solo.blogger.model.User;
+import com.solo.blogger.dto.apiResponse.PostResponseDto;
+import com.solo.blogger.dto.apiRequest.PostDto;
+import com.solo.blogger.entity.Post;
+import com.solo.blogger.entity.User;
 import com.solo.blogger.repository.PostRepository;
 import com.solo.blogger.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,8 +17,10 @@ import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 
 @Service
 @RequiredArgsConstructor
@@ -25,21 +29,34 @@ public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
 
+    @Autowired
+    private FileStorageService fileStorageService;
+
+    static boolean isKafkaEnabled= false;
+
     private final KafkaTemplate<String, String> kafkaTemplate;
     private final EmailService emailService;
 
+    @Transactional
     public Post createPost(PostDto postDto, Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
+        // ✅ Generate image URL for uploaded file
+        String imageUrl = "";
+        if (postDto.getCoverImage() != null && !postDto.getCoverImage().isEmpty()) {
+            String savedImage = fileStorageService.storeFile(postDto.getCoverImage());
+            imageUrl = fileStorageService.getFileUrl(savedImage);
+        }
+
         Post post = Post.builder()
-                .user(user)  // Use User object, not userId
+                .userId(userId)
                 .title(postDto.getTitle())
                 .content(postDto.getContent())
                 .excerpt(postDto.getExcerpt())
                 .category(postDto.getCategory())
                 .tags(postDto.getTags() != null ? postDto.getTags() : new ArrayList<>())
-                .coverImage(postDto.getCoverImage())
+                .coverImage(imageUrl)
                 .status(postDto.getStatus() != null ? postDto.getStatus() : Post.PostStatus.DRAFT)
                 .visibility(postDto.getVisibility() != null ? postDto.getVisibility() : Post.PostVisibility.PUBLIC)
                 .allowComments(postDto.getAllowComments() != null ? postDto.getAllowComments() : true)
@@ -50,13 +67,14 @@ public class PostService {
                 .viewsCount(0L)
                 .build();
 
-        Post savedPost= postRepository.save(post);
-        String message= String.format("user %s created a new post: %s", user.getUsername(), post.getTitle());
-        kafkaTemplate.send("post-created", message);
-//        emailService.sendNewPostNotification("yyadavabhishek9@gmail.com" ,user.getUsername(),post.getTitle());
-
+        Post savedPost = postRepository.save(post);
+        String message = String.format("user %s created a new post: %s", user.getUsername(), post.getTitle());
+        if (isKafkaEnabled) {
+            kafkaTemplate.send("post-created", message);
+        }
         return savedPost;
     }
+
 
     @Transactional(readOnly = true)
     public Page<PostResponseDto> getAllPosts(
@@ -95,6 +113,8 @@ public class PostService {
 
         return postsPage.map(this::convertToResponseDto);
     }
+
+
 
     @Transactional(readOnly = true)
     public PostResponseDto getPostById(Long id) {
@@ -152,8 +172,36 @@ public class PostService {
 //    }
 
     // Convert Post entity to PostResponseDto
-    private PostResponseDto convertToResponseDto(Post post) {
-        return PostResponseDto.builder()
+//    private PostResponseDto convertToResponseDto(Post post) {
+//        return PostResponseDto.builder()
+//                .id(post.getId())
+//                .title(post.getTitle())
+//                .content(post.getContent())
+//                .excerpt(post.getExcerpt())
+//                .coverImage(post.getCoverImage())
+//                .category(post.getCategory())
+//                .tags(post.getTags())
+//                .status(post.getStatus())
+//                .visibility(post.getVisibility())
+//                .publishDate(post.getPublishDate())
+//                .allowComments(post.getAllowComments())
+//                .featured(post.getFeatured())
+//                .commentsCount(post.getCommentsCount())
+//                .likesCount(post.getLikesCount())
+//                .viewsCount(post.getViewsCount())
+//                .createdAt(post.getCreatedAt())
+//                .updatedAt(post.getUpdatedAt())
+//                .user(PostResponseDto.UserSummaryDto.builder()
+//                        .id(post.getUser().getId())
+//                        .username(post.getUser().getUsername())
+//                        .email(post.getUser().getEmail())
+//                        .build())
+//                .build();
+//    }
+
+    public PostResponseDto convertToResponseDto(Post post) {
+        User user = userRepository.findById(post.getUserId()).orElse(null);
+        PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
                 .content(post.getContent())
@@ -171,200 +219,35 @@ public class PostService {
                 .viewsCount(post.getViewsCount())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
-                .user(PostResponseDto.UserSummaryDto.builder()
-                        .id(post.getUser().getId())
-                        .username(post.getUser().getUsername())
-                        .email(post.getUser().getEmail())
-                        .build())
-                .build();
+                .author(user==null ? null : PostResponseDto.UserSummaryDto.builder()
+                        .id(user.getId())
+                        .username(user.getUsername())
+                        .email(user.getEmail())
+                        .build());
+
+        // Load and encode the cover image if it exists
+        if (post.getCoverImage() != null && !post.getCoverImage().isEmpty()) {
+            String fileName = post.getCoverImage();
+
+            // Extract filename from URL if it's a local file
+            if (fileName.startsWith("/api/files/")) {
+                fileName = fileName.substring("/api/files/".length());
+            }
+
+            // Load and encode the image only if it's a local file (not external URL)
+            if (!fileName.startsWith("http")) {
+                try {
+                    Resource resource = fileStorageService.loadFileAsResource(fileName);
+                    byte[] imageBytes = Files.readAllBytes(resource.getFile().toPath());
+                    String base64Image = Base64.getEncoder().encodeToString(imageBytes);
+                    builder.coverImageData("data:image/jpeg;base64," + base64Image);
+                } catch (Exception e) {
+                    System.err.println("Could not load image: " + fileName);
+                    builder.coverImageData(null);
+                }
+            }
+        }
+
+        return builder.build();
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//package com.solo.blogger.service;
-//
-//import com.solo.blogger.dto.GetPostDto;
-//import com.solo.blogger.dto.PostDto;
-//import com.solo.blogger.model.Post;
-//import com.solo.blogger.model.User;
-//import com.solo.blogger.repository.PostRepository;
-//import com.solo.blogger.repository.UserRepository;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.scheduling.annotation.Async;
-//import org.springframework.stereotype.Service;
-//
-//import java.time.LocalDateTime;
-//import java.util.*;
-//import java.util.concurrent.CompletableFuture;
-//import java.util.stream.Collectors;
-//
-//@Service
-//public class PostService {
-//
-//    @Autowired
-//    private UserRepository userRepository;
-//
-//    @Autowired
-//    private PostRepository postRepository;
-//
-//    public Post createPost(PostDto postDto, Long userId) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-//
-//        Post post = Post.builder()
-//                .user(user)  // Use User object, not userId
-//                .title(postDto.getTitle())
-//                .content(postDto.getContent())
-//                .excerpt(postDto.getExcerpt())
-//                .category(postDto.getCategory())
-//                .tags(postDto.getTags() != null ? postDto.getTags() : new ArrayList<>())
-//                .coverImage(postDto.getCoverImage())
-//                .status(postDto.getStatus() != null ? postDto.getStatus() : Post.PostStatus.DRAFT)
-//                .visibility(postDto.getVisibility() != null ? postDto.getVisibility() : Post.PostVisibility.PUBLIC)
-//                .allowComments(postDto.getAllowComments() != null ? postDto.getAllowComments() : true)
-//                .featured(postDto.getFeatured() != null ? postDto.getFeatured() : false)
-//                .publishDate(postDto.getStatus() == Post.PostStatus.PUBLISHED ? LocalDateTime.now() : postDto.getPublishDate())
-//                .commentsCount(0L)
-//                .likesCount(0L)
-//                .viewsCount(0L)
-//                .build();
-//
-//        return postRepository.save(post);
-//    }
-//
-////    @Async("postExecutor")
-////    public CompletableFuture<Post> addPostV2(PostDto postDto){
-////        System.out.println("Thread Name: " + Thread.currentThread().getName());
-////        System.out.println("add post service called");
-////        User user = userRepository.findById(postDto.getUser_id())
-////                .orElseThrow(() -> new RuntimeException("User not found with ID: " + postDto.getUser_id()));
-////        System.out.println("user: "+user);
-////        Post post=Post.builder()
-////                .user(user)
-////                .Title(postDto.getTitle())
-////                .Content(postDto.getContent())
-////                .Category(postDto.getCategory())
-////                .Tags(postDto.getTags())
-////                .picture(postDto.getPicture())
-////                .createdAt(new Date())
-////                .build();
-////
-////        Post savedPost = postRepository.save(post);
-////        return CompletableFuture.completedFuture(savedPost);
-////    }
-//
-//    public List<PostDto> getAllPost(){
-//        List<Post> posts = postRepository.findAll();
-//        return posts.stream().map(post -> PostDto.builder()
-//                .id(post.getId())
-//                .title(post.getTitle())
-//                .content(post.getContent())
-//                .excerpt(post.getExcerpt())
-//                .category(post.getCategory())
-//                .tags(post.getTags())
-//                .coverImage(post.getCoverImage())
-//                .status(post.getStatus())
-//                .visibility(post.getVisibility())
-//                .allowComments(post.getAllowComments())
-//                .featured(post.getFeatured())
-//                .publishDate(post.getPublishDate())
-//                .commentsCount(post.getCommentsCount())
-//                .likesCount(post.getLikesCount())
-//                .viewsCount(post.getViewsCount())
-//                .createdAt(post.getCreatedAt())
-//                .updatedAt(post.getUpdatedAt())
-//                .build()
-//
-//        ).collect(Collectors.toList());
-//    }
-//
-//    public PostDto PostById(GetPostDto getPostDto){
-//        Post post = postRepository.findById(getPostDto.getId()).orElseThrow(()->new RuntimeException("Post not found"));
-//        System.out.println(getPostDto.getId());
-//        System.out.println(post);
-//        return  PostDto.builder().id(post.getId())
-//                .title(post.getTitle())
-//                .content(post.getContent())
-//                .excerpt(post.getExcerpt())
-//                .category(post.getCategory())
-//                .tags(post.getTags())
-//                .coverImage(post.getCoverImage())
-//                .status(post.getStatus())
-//                .visibility(post.getVisibility())
-//                .allowComments(post.getAllowComments())
-//                .featured(post.getFeatured())
-//                .publishDate(post.getPublishDate())
-//                .commentsCount(post.getCommentsCount())
-//                .likesCount(post.getLikesCount())
-//                .viewsCount(post.getViewsCount())
-//                .createdAt(post.getCreatedAt())
-//                .updatedAt(post.getUpdatedAt())
-//                .build();
-//    }
-//
-//    public List<PostDto> PostByUserId(GetPostDto getPostDto){
-//        List<Post> posts = postRepository.findByUserId(getPostDto.getUser_id());
-//        System.out.println(getPostDto.getId());
-//        System.out.println(posts);
-//        return posts.stream().map(post -> PostDto.builder().id(post.getId())
-//                .title(post.getTitle())
-//                .content(post.getContent())
-//                .excerpt(post.getExcerpt())
-//                .category(post.getCategory())
-//                .tags(post.getTags())
-//                .coverImage(post.getCoverImage())
-//                .status(post.getStatus())
-//                .visibility(post.getVisibility())
-//                .allowComments(post.getAllowComments())
-//                .featured(post.getFeatured())
-//                .publishDate(post.getPublishDate())
-//                .commentsCount(post.getCommentsCount())
-//                .likesCount(post.getLikesCount())
-//                .viewsCount(post.getViewsCount())
-//                .createdAt(post.getCreatedAt())
-//                .updatedAt(post.getUpdatedAt())
-//                .build()
-//        ).collect(Collectors.toList());
-//    }
-//
-//    public void deletePost(GetPostDto getPostDto){
-//
-//        User user=userRepository.findById(getPostDto.getUser_id()).orElseThrow(()->new RuntimeException("user not found"));
-//
-//        if(user.getId()!=getPostDto.getUser_id()) throw new RuntimeException("you are not authorize to delete this post");
-//        Post post=postRepository.findById(getPostDto.getId()).orElseThrow(()->new RuntimeException("Post does not exist"));
-//        postRepository.delete(post);
-//    }
-//
-//
-//}

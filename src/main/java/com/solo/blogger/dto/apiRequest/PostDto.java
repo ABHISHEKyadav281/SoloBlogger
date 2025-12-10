@@ -1,8 +1,11 @@
-package com.solo.blogger.dto;
+package com.solo.blogger.dto.apiRequest;
 
-import com.solo.blogger.model.Post;
-import jakarta.validation.constraints.*;
+import com.solo.blogger.entity.Post;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -17,10 +20,6 @@ public class PostDto {
 
     private Long id;
 
-    // User ID - not needed in request if you're getting it from authentication
-    // Include only if explicitly sending it
-//    private Long userId;
-
     @NotBlank(message = "Title is required")
     @Size(max = 500, message = "Title cannot exceed 500 characters")
     private String title;
@@ -32,7 +31,7 @@ public class PostDto {
     private String excerpt;
 
     @Size(max = 500, message = "Cover image URL cannot exceed 500 characters")
-    private String coverImage;
+    private MultipartFile coverImage;
 
     @NotBlank(message = "Category is required")
     @Size(max = 50, message = "Category cannot exceed 50 characters")
@@ -52,22 +51,4 @@ public class PostDto {
 
     private Boolean featured;
 
-    // For response DTOs
-    private Long commentsCount;
-    private Long likesCount;
-    private Long viewsCount;
-
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-
-    // Nested user info for response
-    private UserSummaryDto user;
-
-    @Data
-    @Builder
-    public static class UserSummaryDto {
-        private Long id;
-        private String username;
-        private String profilePicture;
-    }
 }

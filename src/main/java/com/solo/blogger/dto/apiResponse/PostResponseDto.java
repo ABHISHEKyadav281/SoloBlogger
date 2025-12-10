@@ -1,6 +1,6 @@
-package com.solo.blogger.dto;
+package com.solo.blogger.dto.apiResponse;
 
-import com.solo.blogger.model.Post;
+import com.solo.blogger.entity.Post;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -16,6 +16,7 @@ public class PostResponseDto {
     private String content;
     private String excerpt;
     private String coverImage;
+    private String coverImageData;
     private String category;
     private List<String> tags;
     private Post.PostStatus status;
@@ -30,7 +31,7 @@ public class PostResponseDto {
     private LocalDateTime updatedAt;
 
     // User info
-    private UserSummaryDto user;
+    private UserSummaryDto author;
 
     @Data
     @Builder
