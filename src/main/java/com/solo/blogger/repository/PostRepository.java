@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
@@ -38,8 +40,11 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> searchPosts(@Param("search") String search, Pageable pageable);
 
     // Count posts by user
-    @Query("SELECT COUNT(p) FROM Post p WHERE p.userId = :userId")
-    Long countByUserId(@Param("userId") Long userId);
+    @Query("SELECT COUNT(p) FROM Post p WHERE p.id IN :postIds")
+    Long countLikesForPostIds(List<Long> postIds);
+
+    @Query("SELECT p.id FROM Post p WHERE p.userId = :userId")
+    List<Long> postIdsByUserId(@Param("userId") Long userId);
 
     // Find posts by tag
     @Query("SELECT p FROM Post p JOIN p.tags t WHERE t = :tag")

@@ -29,6 +29,8 @@ public class PostResponseDto {
     private Long viewsCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean isIsLiked;
+    private boolean isBookmarked;
 
     // User info
     private UserSummaryDto author;

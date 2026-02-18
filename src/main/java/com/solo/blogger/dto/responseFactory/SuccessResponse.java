@@ -7,7 +7,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class SuccessResponse {
+public class SuccessResponse<T> {
     String statusCode ;
-    String data;
+    T data;
 }

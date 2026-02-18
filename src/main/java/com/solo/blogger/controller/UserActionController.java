@@ -58,4 +58,19 @@ public class UserActionController {
         return ResponseEntity.ok(ApiResponseDto.success(mySubscribersList));
     }
 
+    @GetMapping("/my/subscribers/count")
+    public ResponseEntity<?> getSubscribersCount(@RequestAttribute("userId") Long userId) {
+        Long mySubscribersCount= userActionService.subscribersCount(userId);
+        return ResponseEntity.ok(ApiResponseDto.success(mySubscribersCount));
+    }
+
+    @GetMapping("/is-subscribed")
+    public ResponseEntity<?> getSubscribersCount(@RequestParam("bloggerId" ) long bloggerId,
+            @RequestAttribute("userId") Long userId) {
+        boolean status= userActionService.isSubscribed(bloggerId,userId);
+        return ResponseEntity.ok(ApiResponseDto.success(status));
+    }
+
+
+
 }

@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserActionService {
@@ -42,7 +43,13 @@ public class UserActionService {
         System.out.println(postIds.size());
         List<Post> posts = postRepository.findAllById(postIds);
         System.out.println(posts.size());
-        return posts.stream().map(postService::convertToResponseDto).toList();
+        return posts.stream()
+                .map(post -> {
+                    PostResponseDto dto = postService.convertToResponseDto2(post, null);
+                    dto.setBookmarked(true);
+                    return dto;
+                })
+                .toList();
     }
 
     public void unBookmarkPost(Long postId, Long userId){
@@ -64,4 +71,14 @@ public class UserActionService {
         List<Long> subscriberId=subscriptionRepository.findByBloggerId(userId);
         return userRepository.findUsersById(subscriberId);
     }
+
+    public Long subscribersCount( Long userId){
+        return subscriptionRepository.countByBloggerId(userId);
+    }
+
+    public boolean isSubscribed(Long bloggerId, Long userId){
+        Optional<Subscription> subscriber=subscriptionRepository.findByBloggerIdAndSubscriberId(bloggerId,userId);
+        return subscriber.isPresent();
+    }
+
 }
