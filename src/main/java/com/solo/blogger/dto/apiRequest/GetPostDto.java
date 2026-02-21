@@ -1,4 +1,4 @@
-package com.solo.blogger.dto;
+package com.solo.blogger.dto.apiRequest;
 
 import lombok.*;
 

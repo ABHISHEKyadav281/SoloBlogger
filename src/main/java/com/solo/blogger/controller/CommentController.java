@@ -1,7 +1,7 @@
 package com.solo.blogger.controller;
 
 import com.solo.blogger.dto.ApiResponseDto;
-import com.solo.blogger.dto.CommentDto;
+import com.solo.blogger.dto.apiRequest.CommentDto;
 import com.solo.blogger.service.CommentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,22 +14,23 @@ public class CommentController {
     @Autowired
     private CommentService commentService;
 
-//    @PostMapping(value = "/addComment")
-//    public ResponseEntity<?>AddComment(@RequestBody CommentDto commentDto,@RequestHeader("userId") Long userId){
-//        Comment savedComment= commentService.addComment(commentDto,userId);
-//        return ResponseEntity.ok(ApiResponseDto.success("Comment added succesfully!"));
-//    }
+    @PostMapping(value = "/addComment")
+    public ResponseEntity<?>AddComment(@RequestBody CommentDto comment,@RequestHeader("userId") Long userId){
+        return ResponseEntity.ok(ApiResponseDto.success(commentService.addComment(comment,userId)));
+    }
 
-    @PostMapping(value = "/replyComment")
-    public ResponseEntity<?>ReplyComment(@RequestBody CommentDto commentDto){
-//        Comment savedComment= commentService.replyComment(commentDto);
-        return ResponseEntity.ok(ApiResponseDto.success("Comment reply added succesfully!"));
+    @GetMapping(value = "/getComments")
+    public ResponseEntity<?>getCommentsForPost(@RequestParam("postId") long postId){
+        return ResponseEntity.ok(commentService.getCommentsForPost(postId));
+    }
+
+    @GetMapping(value = "/getComments/replies")
+    public ResponseEntity<?>getRepliesForComments(@RequestParam("parentId") Long parentId){
+        return ResponseEntity.ok(commentService.getRepliesForComments(parentId));
     }
 
     @DeleteMapping(value = "/deleteComment")
     public ResponseEntity<?>deleteComment(@RequestBody CommentDto commentDto){
-        System.out.println("delete comment api called");
-//        commentService.deleteComment(commentDto);
         return ResponseEntity.ok(ApiResponseDto.success("Comment deleted succesfully!"));
     }
 }

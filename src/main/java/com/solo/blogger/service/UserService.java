@@ -1,11 +1,9 @@
 package com.solo.blogger.service;
 
 
-import com.solo.blogger.dto.ApiResponseDto;
-import com.solo.blogger.dto.UserDto;
+import com.solo.blogger.dto.apiResponse.UserDto;
 import com.solo.blogger.dto.apiResponse.UserDetailsDto;
 import com.solo.blogger.dto.responseFactory.SuccessResponse;
-import com.solo.blogger.entity.Post;
 import com.solo.blogger.entity.User;
 import com.solo.blogger.repository.PostRepository;
 import com.solo.blogger.repository.SubscriptionRepository;
@@ -17,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Collections;
 import java.util.List;
 
 @Service
