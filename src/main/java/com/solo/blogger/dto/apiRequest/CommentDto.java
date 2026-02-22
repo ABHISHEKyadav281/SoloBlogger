@@ -1,4 +1,4 @@
-package com.solo.blogger.dto;
+package com.solo.blogger.dto.apiRequest;
 
 import lombok.*;
 
@@ -13,7 +13,7 @@ public class CommentDto {
 
     private String content;
 
-    private long post_id;
+    private long postId;
 
-    private long parent_comment_id;
+    private Long parentId;
 }

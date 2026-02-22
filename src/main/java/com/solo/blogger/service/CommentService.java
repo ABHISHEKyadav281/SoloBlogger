@@ -1,10 +1,19 @@
 package com.solo.blogger.service;
 
+import com.solo.blogger.dto.apiRequest.CommentDto;
+import com.solo.blogger.dto.apiResponse.CommentResponseDto;
+import com.solo.blogger.dto.apiResponse.UserDetailsDto;
+import com.solo.blogger.entity.Comment;
+import com.solo.blogger.entity.Post;
+import com.solo.blogger.entity.User;
 import com.solo.blogger.repository.CommentRepository;
 import com.solo.blogger.repository.PostRepository;
 import com.solo.blogger.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class CommentService {
@@ -18,71 +27,62 @@ public class CommentService {
     @Autowired
     private UserRepository userRepository;
 
-//    public Comment addComment(CommentDto commentDto,Long userId) {
+    public String addComment(CommentDto commentDto, Long userId) {
 
-//        Post post = postRepository.findById(commentDto.getPost_id())
-//                .orElseThrow(() -> new RuntimeException("Post not found with id: " + commentDto.getPost_id()));
-//
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new RuntimeException("User not found: "));
-//
-//        Comment comment = Comment.builder()
-//                .user(user)
-//                .post(post)
-//                .content(commentDto.getContent())
-//                .build();
-//
-//        post.setCommentsCount(post.getCommentsCount() + 1);
-//
-//        Comment savedComment = commentRepository.save(comment);
-//        postRepository.save(post);
+        Post post = postRepository.findById(commentDto.getPostId())
+                .orElseThrow(() -> new RuntimeException("Post not found with id: " + commentDto.getPostId()));
 
-//        return savedComment;
-//    }
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
-//    public Comment replyComment(CommentDto commentDto) {
-//
-//        Post post = postRepository.findById(commentDto.getPost_id())
-//                .orElseThrow(() -> new RuntimeException("Post not found with id: " + commentDto.getPost_id()));
-//
-//        User user = userRepository.findById(commentDto.getUser_id())
-//                .orElseThrow(() -> new RuntimeException("User not found with id: " + commentDto.getUser_id()));
-//
-//        Comment parentComment = commentRepository.findById(commentDto.getParent_comment_id())
-//                .orElseThrow(() -> new RuntimeException("Comment not found with id: " + commentDto.getParent_comment_id()));
-//
-//        Comment reply = Comment.builder()
-//                .user(user)
-//                .post(post)
-//                .content(commentDto.getContent())
-//                .createdAt(new Date())
-//                .build();
-//
-//        Comment savedReply = commentRepository.save(reply);
-//
-//        parentComment.getReplies().add(savedReply);
-//
-//        commentRepository.save(parentComment);
-//
-//        return savedReply;
-//    }
+        if (commentDto.getParentId() != null) {
+            Comment parentComment = commentRepository.findById(commentDto.getParentId())
+                    .orElseThrow(() -> new RuntimeException("Parent comment not found"));
+            parentComment.setReplyCount(parentComment.getReplyCount() + 1);
+            commentRepository.save(parentComment);
+        }
 
-//    public void deleteComment(CommentDto commentDto){
-//        User user=userRepository.findById(commentDto.getUser_id())
-//                .orElseThrow(()->new RuntimeException("user not found"));
-//        Post post = postRepository.findById(commentDto.getPost_id())
-//                .orElseThrow(() -> new RuntimeException("Post not found with id: " + commentDto.getPost_id()));
-//
-//        Comment comment=commentRepository.findById(commentDto.getId())
-//                .orElseThrow(()->new RuntimeException("not comment present"));
-//
-//        if(user.getId()==commentDto.getUser_id() || post.getUser().getId()==commentDto.getUser_id()) {
-//            commentRepository.delete(comment);
-//        }
-//        else{
-//            throw new RuntimeException("You are not authorized to delete this comment!");
-//        }
-//    }
+        Comment comment = Comment.builder()
+                .userId(userId)
+                .postId(commentDto.getPostId())
+                .content(commentDto.getContent())
+                .parentId(commentDto.getParentId())
+                .replyCount(0)
+                .build();
 
+        post.setCommentsCount(post.getCommentsCount() + 1);
+        postRepository.save(post);
+
+        Comment savedComment = commentRepository.save(comment);
+
+        return "Comment added successfully";
+    }
+
+    public List<CommentResponseDto> getCommentsForPost(Long postId) {
+
+        postRepository.findById(postId)
+                .orElseThrow(() -> new RuntimeException("Post not found with id: " + postId));
+
+        List<Comment> comments = commentRepository.findTopLevelCommentsByPostId(postId);
+
+        return comments.stream()
+                .map(comment -> CommentResponseDto.builder()
+                        .id(comment.getId())
+                        .content(comment.getContent())
+                        .repliesCount(comment.getReplyCount())
+                        .createdAt(comment.getCreatedAt())
+                        .isLiked(false)
+                        .author(UserDetailsDto.builder()
+                                .id(comment.getUser().getId())
+                                .username(comment.getUser().getUsername())
+                                .build())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public List<Comment>getRepliesForComments(Long parentId) {
+        List<Comment> comments = commentRepository.findCommentsByParentId(parentId);
+        return comments;
+    }
 
 }
