@@ -52,7 +52,8 @@ public class PostController {
             @RequestParam(required = false) String search,
             @RequestParam(required = false) Boolean featured,
             @RequestParam(defaultValue = "createdAt") String sortBy,
-            @RequestParam(defaultValue = "desc") String sortOrder
+            @RequestParam(defaultValue = "desc") String sortOrder,
+            @RequestAttribute("userId") Long userId
     ) {
         Page<PostResponseDto> postsPage = postService.getAllPosts(
                 page - 1,
@@ -63,7 +64,8 @@ public class PostController {
                 search,
                 featured,
                 sortBy,
-                sortOrder
+                sortOrder,
+                userId
         );
 
         Map<String, Object> response = new HashMap<>();
@@ -78,20 +80,22 @@ public class PostController {
     }
 
 //    details from post table &image from file system
-    @GetMapping("/posts/{id}")
-    public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long id) {
-        PostResponseDto post = postService.getPostById(id);
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long postId,
+                                                       @RequestAttribute("userId") Long userId) {
+        PostResponseDto post = postService.getPostById(postId,userId);
         return ResponseEntity.ok(post);
     }
 
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/user")
     public ResponseEntity<Map<String, Object>> getPostsByUser(
-            @PathVariable Long userId,
+            @RequestParam("bloggerId") Long bloggerId,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int limit
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestAttribute("userId") Long userId
     ) {
-        Page<PostResponseDto> postsPage = postService.getPostsByUserId(userId, page - 1, limit);
+        Page<PostResponseDto> postsPage = postService.getPostsByUserId(bloggerId, page - 1, limit,userId);
 
         Map<String, Object> response = new HashMap<>();
         response.put("posts", postsPage.getContent());

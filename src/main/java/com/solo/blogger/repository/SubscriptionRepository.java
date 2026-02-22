@@ -17,4 +17,8 @@ public interface SubscriptionRepository extends JpaRepository<Subscription,Long>
 
     @Query("Select s.subscriberId from Subscription s where s.bloggerId = :bloggerId")
     List<Long> findByBloggerId(Long bloggerId);
+
+    boolean existsByBloggerIdAndSubscriberId(Long bloggerId,Long subscriberId);
+
+    long countByBloggerId(long userId);
 }
