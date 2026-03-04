@@ -1,12 +1,12 @@
 package com.solo.blogger.utils;
 
 import com.solo.blogger.dto.responseFactory.SuccessResponse;
+import com.solo.blogger.exception.TokenExpiredException;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-
 
 import java.util.*;
 
@@ -38,8 +38,11 @@ public class JwtUtil {
     }
 
     public boolean validateToken(String token, String username) {
+        if (isTokenExpired(token)) {
+            throw new TokenExpiredException("Token has expired.");
+        }
         final String extractedUsername = extractUsername(token);
-        return (extractedUsername.equals(username) && !isTokenExpired(token));
+        return extractedUsername.equals(username);
     }
 
     private boolean isTokenExpired(String token) {
