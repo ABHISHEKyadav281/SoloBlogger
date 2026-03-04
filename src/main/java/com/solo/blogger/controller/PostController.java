@@ -22,7 +22,7 @@ public class PostController {
 
     private final PostService postService;
 
-    @PostMapping(value = "createPost", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/createPost", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> CreatePostAlt(
             @ModelAttribute PostDto postDto,
             @RequestAttribute("userId") Long userId

@@ -1,5 +1,6 @@
 package com.solo.blogger.service;
 
+import com.solo.blogger.dto.apiResponse.PostCreatedEvent;
 import com.solo.blogger.dto.apiResponse.PostResponseDto;
 import com.solo.blogger.dto.apiRequest.PostDto;
 import com.solo.blogger.entity.Post;
@@ -37,7 +38,7 @@ public class PostService {
 
     static boolean isKafkaEnabled= false;
 
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, PostCreatedEvent> kafkaTemplate;
     private final EmailService emailService;
 
     @Autowired
@@ -45,6 +46,9 @@ public class PostService {
 
     @Autowired
     private BookmarkRepository bookmarkRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Transactional
     public Post createPost(PostDto postDto, Long userId) {
@@ -56,6 +60,8 @@ public class PostService {
         if (postDto.getCoverImage() != null && !postDto.getCoverImage().isEmpty()) {
             String savedImage = fileStorageService.storeFile(postDto.getCoverImage());
             imageUrl = fileStorageService.getFileUrl(savedImage);
+//            String s3Key = s3FileStorageService.storeFile(postDto.getCoverImage(), postDto.getTitle());
+//            imageUrl = s3FileStorageService.getFileUrl(s3Key);
         }
 
         Post post = Post.builder()
@@ -77,9 +83,17 @@ public class PostService {
                 .build();
 
         Post savedPost = postRepository.save(post);
-        String message = String.format("user %s created a new post: %s", user.getUsername(), post.getTitle());
         if (isKafkaEnabled) {
-            kafkaTemplate.send("post-created", message);
+            PostCreatedEvent event = new PostCreatedEvent(
+                    post.getId(),
+                    user.getId(),
+                    user.getUsername(),
+                    post.getTitle()
+            );
+            kafkaTemplate.send("post-created", event);
+        }
+        else{
+            notificationService.notificationEntry(user.getId(), post.getId(), post.getTitle(),user.getUsername());
         }
         return savedPost;
     }
