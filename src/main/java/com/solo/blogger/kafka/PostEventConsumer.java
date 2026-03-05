@@ -25,11 +25,9 @@ public class PostEventConsumer {
 
     @KafkaListener(topics = "post-created", groupId = "email-service")
     public void informSubscribersForNewPost(PostCreatedEvent event) {
-        System.out.println("consumer found one notification  : ");
         if (event.getAuthorId() == null) throw new RuntimeException("User id is null");
         List<Long> followerIds = subscriptionRepository.findByBloggerId(event.getAuthorId());
         if (followerIds == null || followerIds.isEmpty()) {
-            System.out.println("No followers for authorId: " + event.getAuthorId());
             return;
         }
         List<Notification> notifications = followerIds.stream()

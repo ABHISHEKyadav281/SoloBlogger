@@ -34,7 +34,6 @@ public class FileStorageService {
 
             Files.createDirectories(this.fileStorageLocation);
 
-            System.out.println("✅ File upload directory initialized at: " + this.fileStorageLocation.toString());
         } catch (Exception ex) {
             System.err.println("❌ Failed to create upload directory: " + uploadDir);
             ex.printStackTrace();

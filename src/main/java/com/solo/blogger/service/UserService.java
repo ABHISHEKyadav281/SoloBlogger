@@ -44,7 +44,6 @@ public class UserService  {
     }
 
     public ResponseEntity<?> userDetails(Long bloggerId, Long userId){
-        System.out.println("hii");
         User user=userRepository.findById(bloggerId).orElseThrow(()->new RuntimeException ("user not found"));
         List<Long> postIds=postRepository.postIdsByUserId(bloggerId);
         Long postCount= (long) postIds.size();

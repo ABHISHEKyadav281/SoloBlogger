@@ -6,10 +6,7 @@ import com.solo.blogger.dto.apiRequest.PostDto;
 import com.solo.blogger.entity.Post;
 import com.solo.blogger.entity.PostLike;
 import com.solo.blogger.entity.User;
-import com.solo.blogger.repository.BookmarkRepository;
-import com.solo.blogger.repository.PostLikeRepository;
-import com.solo.blogger.repository.PostRepository;
-import com.solo.blogger.repository.UserRepository;
+import com.solo.blogger.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
@@ -50,6 +47,12 @@ public class PostService {
     @Autowired
     private NotificationService notificationService;
 
+    @Autowired
+    private S3FileStorageService s3FileStorageService;
+
+    @Autowired
+    private SubscriptionRepository subscriptionRepository;
+
     @Transactional
     public Post createPost(PostDto postDto, Long userId) {
         User user = userRepository.findById(userId)
@@ -58,10 +61,8 @@ public class PostService {
         // ✅ Generate image URL for uploaded file
         String imageUrl = "";
         if (postDto.getCoverImage() != null && !postDto.getCoverImage().isEmpty()) {
-            String savedImage = fileStorageService.storeFile(postDto.getCoverImage());
-            imageUrl = fileStorageService.getFileUrl(savedImage);
-//            String s3Key = s3FileStorageService.storeFile(postDto.getCoverImage(), postDto.getTitle());
-//            imageUrl = s3FileStorageService.getFileUrl(s3Key);
+            String s3Key = s3FileStorageService.storeFile(postDto.getCoverImage(), postDto.getTitle());
+            imageUrl = s3FileStorageService.getFileUrl(s3Key);
         }
 
         Post post = Post.builder()
@@ -146,7 +147,6 @@ public class PostService {
                     .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
 
             long count = post.getViewsCount();
-            System.out.println(count);
             post.setViewsCount(count + 1);
             postRepository.save(post);
 
@@ -154,8 +154,7 @@ public class PostService {
             PostLike like = postLikeRepository.findByPostIdAndUserId(post.getId(), userId).orElse(null);
             if (like != null) isLiked = true;
 
-            System.out.println("hiii");
-            return convertToResponseDto(post, isLiked);
+            return convertToResponseDto(post, isLiked,userId);
 
         } catch (RuntimeException e) {
             System.err.println("Error fetching post: " + e.getMessage());
@@ -184,8 +183,13 @@ public class PostService {
         return postsPage.map(post->convertToResponseDto2(post,userId));
     }
 
-    public PostResponseDto convertToResponseDto(Post post,boolean isLiked) {
+    public PostResponseDto convertToResponseDto(Post post,boolean isLiked,Long currentUserId) {
         User user = userRepository.findById(post.getUserId()).orElse(null);
+        Long followersCount=subscriptionRepository.countByBloggerId(post.getUserId());
+        boolean isFollowing = false;
+        if (currentUserId != null) {
+            isFollowing = subscriptionRepository.existsByBloggerIdAndSubscriberId(post.getUserId(), currentUserId);
+        }
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -204,41 +208,25 @@ public class PostService {
                 .viewsCount(post.getViewsCount())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
+                .subscribed(isFollowing)
                 .isIsLiked(isLiked)
                 .author(user==null ? null : PostResponseDto.UserSummaryDto.builder()
                         .id(user.getId())
                         .username(user.getUsername())
                         .email(user.getEmail())
+                        .followers(followersCount)
                         .build());
 
-        // Load and encode the cover image if it exists
-        if (post.getCoverImage() != null && !post.getCoverImage().isEmpty()) {
-            String fileName = post.getCoverImage();
-
-            // Extract filename from URL if it's a local file
-            if (fileName.startsWith("/api/files/")) {
-                fileName = fileName.substring("/api/files/".length());
-            }
-
-            // Load and encode the image only if it's a local file (not external URL)
-            if (!fileName.startsWith("http")) {
-                try {
-                    Resource resource = fileStorageService.loadFileAsResource(fileName);
-                    byte[] imageBytes = Files.readAllBytes(resource.getFile().toPath());
-                    String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-                    builder.coverImageData("data:image/jpeg;base64," + base64Image);
-                } catch (Exception e) {
-                    System.err.println("Could not load image: " + fileName);
-                    builder.coverImageData(null);
-                }
-            }
-        }
-        System.out.println("hello");
         return builder.build();
     }
 
     public PostResponseDto convertToResponseDto2(Post post,Long currentUserId) {
         User user = userRepository.findById(post.getUserId()).orElse(null);
+        Long followersCount=subscriptionRepository.countByBloggerId(post.getUserId());
+        boolean isFollowing = false;
+        if (currentUserId != null) {
+            isFollowing = subscriptionRepository.existsByBloggerIdAndSubscriberId(post.getUserId(), currentUserId);
+        }
         PostResponseDto.PostResponseDtoBuilder builder = PostResponseDto.builder()
                 .id(post.getId())
                 .title(post.getTitle())
@@ -257,34 +245,13 @@ public class PostService {
                 .viewsCount(post.getViewsCount())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
+                .subscribed(isFollowing)
                 .author(user==null ? null : PostResponseDto.UserSummaryDto.builder()
                         .id(user.getId())
                         .username(user.getUsername())
                         .email(user.getEmail())
+                        .followers(followersCount)
                         .build());
-
-        // Load and encode the cover image if it exists
-        if (post.getCoverImage() != null && !post.getCoverImage().isEmpty()) {
-            String fileName = post.getCoverImage();
-
-            // Extract filename from URL if it's a local file
-            if (fileName.startsWith("/api/files/")) {
-                fileName = fileName.substring("/api/files/".length());
-            }
-
-            // Load and encode the image only if it's a local file (not external URL)
-            if (!fileName.startsWith("http")) {
-                try {
-                    Resource resource = fileStorageService.loadFileAsResource(fileName);
-                    byte[] imageBytes = Files.readAllBytes(resource.getFile().toPath());
-                    String base64Image = Base64.getEncoder().encodeToString(imageBytes);
-                    builder.coverImageData("data:image/jpeg;base64," + base64Image);
-                } catch (Exception e) {
-                    System.err.println("Could not load image: " + fileName);
-                    builder.coverImageData(null);
-                }
-            }
-        }
 
         if (currentUserId != null) {
             boolean isBookmarked = bookmarkRepository.existsByUserIdAndPostId(currentUserId, post.getId());

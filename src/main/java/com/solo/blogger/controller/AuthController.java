@@ -32,13 +32,11 @@ public class AuthController {
 
     @PostMapping(value = "signup")
     public ResponseEntity<?> Register(@RequestBody UserDto userDto){
-        System.out.println("hii abhi");
         return userService.register(userDto);
     }
 
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
-        System.out.println("hi login api");
        return authService.login(authRequest);
 
     }

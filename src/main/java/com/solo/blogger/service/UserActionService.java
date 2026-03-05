@@ -40,9 +40,7 @@ public class UserActionService {
 
     public List<PostResponseDto> getBookmarkedPosts(Long userId) {
         List<Long> postIds = bookmarkRepository.findByUserId(userId);
-        System.out.println(postIds.size());
         List<Post> posts = postRepository.findAllById(postIds);
-        System.out.println(posts.size());
         return posts.stream()
                 .map(post -> {
                     PostResponseDto dto = postService.convertToResponseDto2(post, null);

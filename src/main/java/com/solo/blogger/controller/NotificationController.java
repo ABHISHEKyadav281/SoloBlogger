@@ -21,7 +21,6 @@ public class NotificationController {
             @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "20") int limit,
             @RequestAttribute("userId") Long userId ) {
-        System.out.println(userId);
         return ResponseEntity.ok(notificationService.getNotifications(userId, page, limit));
     }
 

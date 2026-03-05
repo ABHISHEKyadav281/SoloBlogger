@@ -27,8 +27,6 @@ public class PostController {
             @ModelAttribute PostDto postDto,
             @RequestAttribute("userId") Long userId
     ) {
-        System.out.println("Create post alt controller called");
-
         try {
             Post savedPost = postService.createPost(postDto, userId);
             return ResponseEntity.ok(ApiResponseDto.success("Post created successfully!"));
