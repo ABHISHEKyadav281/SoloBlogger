@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping(value = "/user/action/")
+@RequestMapping(value = "/api/user/action/")
 public class UserActionController {
 
     @Autowired

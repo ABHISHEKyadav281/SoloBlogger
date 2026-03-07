@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/reaction")
+@RequestMapping(value = "/api/reaction")
 public class ReactionController {
 
     @Autowired
