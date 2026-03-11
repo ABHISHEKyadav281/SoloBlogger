@@ -50,7 +50,6 @@ public class CommentService {
                 .replyCount(0)
                 .build();
 
-        post.setCommentsCount(post.getCommentsCount() + 1);
         postRepository.save(post);
 
         Comment savedComment = commentRepository.save(comment);

@@ -53,6 +53,9 @@ public class PostService {
     @Autowired
     private SubscriptionRepository subscriptionRepository;
 
+    @Autowired
+    private CommentRepository commentRepository;
+
     @Transactional
     public Post createPost(PostDto postDto, Long userId) {
         User user = userRepository.findById(userId)
@@ -78,8 +81,6 @@ public class PostService {
                 .allowComments(postDto.getAllowComments() != null ? postDto.getAllowComments() : true)
                 .featured(postDto.getFeatured() != null ? postDto.getFeatured() : false)
                 .publishDate(postDto.getStatus() == Post.PostStatus.PUBLISHED ? LocalDateTime.now() : postDto.getPublishDate())
-                .commentsCount(0L)
-                .likesCount(0L)
                 .viewsCount(0L)
                 .build();
 
@@ -140,7 +141,7 @@ public class PostService {
 
 
 
-    @Transactional(readOnly = true)
+    @Transactional
     public PostResponseDto getPostById(Long id, Long userId) {
         try {
             Post post = postRepository.findById(id)
@@ -153,8 +154,8 @@ public class PostService {
             boolean isLiked = false;
             PostLike like = postLikeRepository.findByPostIdAndUserId(post.getId(), userId).orElse(null);
             if (like != null) isLiked = true;
-
-            return convertToResponseDto(post, isLiked,userId);
+            Long commentsCount = commentRepository.countByPostId(post.getId());
+            return convertToResponseDto(post, isLiked,userId, commentsCount);
 
         } catch (RuntimeException e) {
             System.err.println("Error fetching post: " + e.getMessage());
@@ -183,7 +184,7 @@ public class PostService {
         return postsPage.map(post->convertToResponseDto2(post,userId));
     }
 
-    public PostResponseDto convertToResponseDto(Post post,boolean isLiked,Long currentUserId) {
+    public PostResponseDto convertToResponseDto(Post post,boolean isLiked,Long currentUserId,Long commentsCount) {
         User user = userRepository.findById(post.getUserId()).orElse(null);
         Long followersCount=subscriptionRepository.countByBloggerId(post.getUserId());
         boolean isFollowing = false;
@@ -203,8 +204,7 @@ public class PostService {
                 .publishDate(post.getPublishDate())
                 .allowComments(post.getAllowComments())
                 .featured(post.getFeatured())
-                .commentsCount(post.getCommentsCount())
-                .likesCount(post.getLikesCount())
+                .commentsCount(commentsCount)
                 .viewsCount(post.getViewsCount())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())
@@ -240,8 +240,6 @@ public class PostService {
                 .publishDate(post.getPublishDate())
                 .allowComments(post.getAllowComments())
                 .featured(post.getFeatured())
-                .commentsCount(post.getCommentsCount())
-                .likesCount(post.getLikesCount())
                 .viewsCount(post.getViewsCount())
                 .createdAt(post.getCreatedAt())
                 .updatedAt(post.getUpdatedAt())

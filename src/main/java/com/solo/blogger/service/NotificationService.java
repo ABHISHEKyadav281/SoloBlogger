@@ -26,14 +26,17 @@ public class NotificationService {
 
     public ApiResponseDto<?>getNotifications(Long userId, int page, int limit) {
         if(userId == null)  throw new RuntimeException("User id is null");
-        Page<Notification> notifications=notificationRepository.findAllByUserId(userId, PageRequest.of(page,limit));
-        NotificationResponse userNotifications = NotificationResponse.builder().notifications(notifications.getContent()).unreadCount(notifications.getTotalElements()).build();
+        Page<Notification> notifications=notificationRepository.findAllByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(page,limit));
+        NotificationResponse userNotifications = NotificationResponse.builder()
+                .notifications(notifications.getContent())
+                .unreadCount(notifications
+                        .getTotalElements()).build();
         return ApiResponseDto.success(userNotifications);
     }
 
     public ApiResponseDto<?>getUnreadCount(Long userId) {
         if(userId == null)  throw new RuntimeException("User id is null");
-        Long count=notificationRepository.findAllByUserIdAndIsReadFalse(userId);
+        Long count=notificationRepository.countByUserIdAndIsReadFalse(userId);
         NotificationResponse userNotifications = NotificationResponse.builder().notifications(null).unreadCount(count).build();
         return ApiResponseDto.success(userNotifications);
     }
@@ -60,5 +63,10 @@ public class NotificationService {
 
     }
 
+    public void readNotification(Long notificationId) {
+        Notification notification = notificationRepository.findById(notificationId).orElseThrow(() -> new RuntimeException("Notification not found"));
+        notification.setRead(true);
+        notificationRepository.save(notification);
+    }
 
 }

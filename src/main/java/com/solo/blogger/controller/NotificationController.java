@@ -31,11 +31,9 @@ public class NotificationController {
     }
 
 
-    // GET /api/notifications/subscribe  (SSE - real time)
-//    @GetMapping(value = "/subscribe", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-//    public SseEmitter subscribe(
-//            @AuthenticationPrincipal Long userId) {          // ← from token
-//
-//        return sseService.subscribe(userId);
-//    }
+     @PostMapping("/read")
+    public ResponseEntity<?> readNotifications(Long notificationId) {
+         notificationService.readNotification(notificationId);
+         return ResponseEntity.status(200).build();
+     }
 }

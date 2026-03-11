@@ -12,7 +12,7 @@ import java.util.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Post {
+public class         Post {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,12 +65,6 @@ public class Post {
     @Column(nullable = false)
     private Boolean featured = false;
 
-    @Column(name = "comments_count")
-    private Long commentsCount = 0L;
-
-    @Column(name = "likes_count")
-    private Long likesCount = 0L;
-
     @Column(name = "views_count")
     private Long viewsCount = 0L;
 
@@ -87,8 +81,6 @@ public class Post {
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
 
-        if (commentsCount == null) commentsCount = 0L;
-        if (likesCount == null) likesCount = 0L;
         if (viewsCount == null) viewsCount = 0L;
         if (allowComments == null) allowComments = true;
         if (featured == null) featured = false;

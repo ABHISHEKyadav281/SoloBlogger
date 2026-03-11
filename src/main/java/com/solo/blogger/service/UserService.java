@@ -47,8 +47,8 @@ public class UserService  {
         User user=userRepository.findById(bloggerId).orElseThrow(()->new RuntimeException ("user not found"));
         List<Long> postIds=postRepository.postIdsByUserId(bloggerId);
         Long postCount= (long) postIds.size();
-        Long followers=0L;
-        Long following=0L;
+        Long followers=subscribedRepository.countByBloggerId(bloggerId);
+        Long following=subscribedRepository.countBySubscriberId(bloggerId);
         boolean isFollowing=subscribedRepository.existsByBloggerIdAndSubscriberId(bloggerId,userId);
         Long totLikes=postRepository.countLikesForPostIds(postIds);
        UserDetailsDto userDetail= UserDetailsDto.builder().username(user.getUsername()).totalLikes(totLikes)

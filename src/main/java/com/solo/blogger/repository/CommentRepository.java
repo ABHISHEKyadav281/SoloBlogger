@@ -20,4 +20,6 @@ public interface CommentRepository extends JpaRepository<Comment,String > {
     @Query("SELECT c FROM Comment c JOIN FETCH c.user u WHERE c.parentId = :parentId  ORDER BY c.createdAt ASC")
     List<Comment> findCommentsByParentId(@Param("parentId") Long parentId);
 
+    Long countByPostId(Long postId);
+
 }
