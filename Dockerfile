@@ -1,14 +1,14 @@
-# Use official OpenJDK runtime as base image
-FROM openjdk:17-jre-slim
-
-# Set working directory inside container
+# Stage 1: Build
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
 WORKDIR /app
+COPY pom.xml .
+RUN mvn dependency:go-offline -B
+COPY src ./src
+RUN mvn clean package -DskipTests -B
 
-# Copy the JAR file from target directory to container
-COPY target/*.jar app.jar
-
-# Expose port 8080 (default Spring Boot port)
+# Stage 2: Run
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=builder /app/target/*.jar app.jar
 EXPOSE 8080
-
-# Command to run the application
 ENTRYPOINT ["java", "-jar", "app.jar"]

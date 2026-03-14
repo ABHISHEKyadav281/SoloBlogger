@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/auth/v1")
+@RequestMapping(value = "/api/auth/v1")
 public class AuthController {
 
     @Autowired
@@ -32,13 +32,11 @@ public class AuthController {
 
     @PostMapping(value = "signup")
     public ResponseEntity<?> Register(@RequestBody UserDto userDto){
-        System.out.println("hii abhi");
         return userService.register(userDto);
     }
 
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
-        System.out.println("hi login api");
        return authService.login(authRequest);
 
     }

@@ -29,6 +29,7 @@ public class PostResponseDto {
     private Long viewsCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean subscribed;
     private boolean isIsLiked;
     private boolean isBookmarked;
 
@@ -43,5 +44,6 @@ public class PostResponseDto {
         private Long id;
         private String username;
         private String email;
+        private Long followers;;
     }
 }

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/notifications")
+@RequestMapping("/api/notifications")
 public class NotificationController {
 
     @Autowired
@@ -21,7 +21,6 @@ public class NotificationController {
             @RequestParam(defaultValue = "0")  int page,
             @RequestParam(defaultValue = "20") int limit,
             @RequestAttribute("userId") Long userId ) {
-        System.out.println(userId);
         return ResponseEntity.ok(notificationService.getNotifications(userId, page, limit));
     }
 
