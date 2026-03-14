@@ -21,4 +21,6 @@ public interface SubscriptionRepository extends JpaRepository<Subscription,Long>
     boolean existsByBloggerIdAndSubscriberId(Long bloggerId,Long subscriberId);
 
     long countByBloggerId(long userId);
+
+    long countBySubscriberId(long userId);
 }

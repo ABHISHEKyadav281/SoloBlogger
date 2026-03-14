@@ -41,8 +41,8 @@ public class S3FileStorageService {
     private String folder;
 
     private static final long MAX_FILE_SIZE   = 10 * 1024 * 1024; // 10 MB
-    private static final int  MAX_IMAGE_WIDTH = 3840;              // 4K max width
-    private static final int  MAX_IMAGE_HEIGHT= 2160;              // 4K max height
+//    private static final int  MAX_IMAGE_WIDTH = 3840;              // 4K max width
+//    private static final int  MAX_IMAGE_HEIGHT= 2160;              // 4K max height
 
     private AmazonS3 s3Client;
 
@@ -144,12 +144,12 @@ public class S3FileStorageService {
             System.err.println("⚠️ ImageIO failed: " + e.getMessage());
         }
 
-        if (originalImage.getWidth() > MAX_IMAGE_WIDTH || originalImage.getHeight() > MAX_IMAGE_HEIGHT) {
-            throw new RuntimeException(
-                    String.format("Image dimensions %dx%d exceed maximum allowed size of %dx%d pixels.",
-                            originalImage.getWidth(), originalImage.getHeight(), MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT)
-            );
-        }
+//        if (originalImage.getWidth() > MAX_IMAGE_WIDTH || originalImage.getHeight() > MAX_IMAGE_HEIGHT) {
+//            throw new RuntimeException(
+//                    String.format("Image dimensions %dx%d exceed maximum allowed size of %dx%d pixels.",
+//                            originalImage.getWidth(), originalImage.getHeight(), MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT)
+//            );
+//        }
 
         BufferedImage jpegImage = new BufferedImage(
                 originalImage.getWidth(),
