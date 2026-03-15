@@ -45,20 +45,3 @@ public class AppConfig {
         return manager;
     }
 }
-//```
-//
-//        ---
-//
-//        ## How everything connects
-//```
-//createPost()
-//    └── FanOutService.fanOut(post)
-//            └── for each followerId:
-//writeToFeedAsync()        → saves FeedEntry row
-//                                              → evicts Caffeine cache
-//
-//getFeedForUser()
-//    └── CacheService.getFeed(userId, page)
-//            ├── HIT  → returns from Caffeine (no DB)
-//            └── MISS → FeedRepository.findByUserIdOrderByCreatedAtDesc()
-//                        → caches result → returns

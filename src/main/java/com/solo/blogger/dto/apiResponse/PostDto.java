@@ -17,10 +17,6 @@ public class PostDto {
 
     private Long id;
 
-    // User ID - not needed in request if you're getting it from authentication
-    // Include only if explicitly sending it
-//    private Long userId;
-
     @NotBlank(message = "Title is required")
     @Size(max = 500, message = "Title cannot exceed 500 characters")
     private String title;
@@ -52,7 +48,6 @@ public class PostDto {
 
     private Boolean featured;
 
-    // For response DTOs
     private Long commentsCount;
     private Long likesCount;
     private Long viewsCount;
@@ -60,7 +55,6 @@ public class PostDto {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    // Nested user info for response
     private UserSummaryDto user;
 
     @Data

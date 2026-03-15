@@ -21,7 +21,7 @@ public class EmailService {
             mailSender.send(message);
             System.out.println("✅ Email sent to " + toEmail);
         } catch (RuntimeException e) {
-            System.out.println("❌ Failed to send email notification:"+e.getMessage());
+            System.out.println("Failed to send email notification:"+e.getMessage());
         }
     }
 }

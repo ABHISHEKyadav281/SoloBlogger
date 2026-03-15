@@ -8,9 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class GetPostDto {
-
         private long id;
-
         private long user_id;
 
 }

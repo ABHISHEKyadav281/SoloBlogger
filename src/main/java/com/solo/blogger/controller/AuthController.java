@@ -1,6 +1,5 @@
 package com.solo.blogger.controller;
 
-
 import com.solo.blogger.dto.apiResponse.AuthRequest;
 import com.solo.blogger.dto.apiResponse.UserDto;
 import com.solo.blogger.repository.UserRepository;
@@ -31,13 +30,13 @@ public class AuthController {
     private JwtUtil jwtUtil;
 
     @PostMapping(value = "signup")
-    public ResponseEntity<?> Register(@RequestBody UserDto userDto){
+    public ResponseEntity<?> Register(@RequestBody UserDto userDto) {
         return userService.register(userDto);
     }
 
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
-       return authService.login(authRequest);
+        return authService.login(authRequest);
 
     }
 

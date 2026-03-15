@@ -52,7 +52,7 @@ public class CommentService {
 
         postRepository.save(post);
 
-        Comment savedComment = commentRepository.save(comment);
+        commentRepository.save(comment);
 
         return "Comment added successfully";
     }
@@ -79,7 +79,7 @@ public class CommentService {
                 .collect(Collectors.toList());
     }
 
-    public List<Comment>getRepliesForComments(Long parentId) {
+    public List<Comment> getRepliesForComments(Long parentId) {
         List<Comment> comments = commentRepository.findCommentsByParentId(parentId);
         return comments;
     }

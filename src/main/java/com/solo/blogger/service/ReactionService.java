@@ -15,7 +15,6 @@ public class ReactionService {
     @Autowired
     private PostLikeRepository postLikeRepository;
 
-
     public void reactPost(Long userId, Long postId, ReactionType reactionType) {
 
         if (reactionType.equals(ReactionType.LIKE)) {

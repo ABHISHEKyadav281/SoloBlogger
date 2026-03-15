@@ -9,6 +9,7 @@ import java.util.List;
 
 @Repository
 public interface BookmarkRepository extends JpaRepository<Bookmark,Long> {
+
     @Query("SELECT b.postId FROM Bookmark b WHERE b.userId = :userId")
     List<Long> findByUserId(Long userId);
 

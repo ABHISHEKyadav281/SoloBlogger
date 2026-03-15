@@ -63,7 +63,6 @@ public class PostService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
-        // ✅ Generate image URL for uploaded file
         String imageUrl = "";
         if (postDto.getCoverImage() != null && !postDto.getCoverImage().isEmpty()) {
             String s3Key = s3FileStorageService.storeFile(postDto.getCoverImage(), postDto.getTitle());
@@ -122,7 +121,6 @@ public class PostService {
 
         Page<Post> postsPage;
 
-        // Apply filters
         if (search != null && !search.isEmpty()) {
             postsPage = postRepository.searchPosts(search, pageable);
         } else if (category != null && featured != null) {
@@ -279,7 +277,6 @@ public class PostService {
                 .filter(e -> e.getCreatedAt().isAfter(cutoff))
                 .toList();
 
-        // If no fresh fanout entries — fall back to public posts
         if (freshEntries.isEmpty()) {
             return getAllPosts(page, limit, null, "PUBLISHED", null,
                     null, null, "createdAt", "desc", userId);

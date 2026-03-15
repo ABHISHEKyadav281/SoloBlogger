@@ -10,9 +10,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 @SpringBootApplication
 public class BloggerApplication {
 
-	public static void main(String[] args) {
+    public static void main(String[] args) {
 
-		SpringApplication.run(BloggerApplication.class, args);
-	}
+        SpringApplication.run(BloggerApplication.class, args);
+    }
 
 }

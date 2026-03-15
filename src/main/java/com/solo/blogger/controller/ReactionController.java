@@ -35,12 +35,4 @@ public class ReactionController {
         return ResponseEntity.ok(ApiResponseDto.success(isLiked));
     }
 
-//    @PostMapping("/comment/{commentId}/{reactionType}")
-//    public ResponseEntity<?> reactToComment(@PathVariable Long commentId,
-//                                                 @PathVariable ReactionType reactionType,
-//                                                 @RequestParam Long userId) {
-//        reactionService.reactToComment(userId, commentId, reactionType);
-//        return ResponseEntity.ok(ApiResponseDto.success("Reaction updated successfully"));
-//    }
-
 }

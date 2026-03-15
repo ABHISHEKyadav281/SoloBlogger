@@ -37,7 +37,7 @@ public class PostController {
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest()
-                    .body(ApiResponseDto.error("500","Failed to create post: " + e.getMessage()));
+                    .body(ApiResponseDto.error("500", "Failed to create post: " + e.getMessage()));
         }
     }
 
@@ -82,7 +82,7 @@ public class PostController {
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long postId,
                                                        @RequestAttribute("userId") Long userId) {
-        PostResponseDto post = postService.getPostById(postId,userId);
+        PostResponseDto post = postService.getPostById(postId, userId);
         return ResponseEntity.ok(post);
     }
 
@@ -94,7 +94,7 @@ public class PostController {
             @RequestParam(defaultValue = "10") int limit,
             @RequestAttribute("userId") Long userId
     ) {
-        Page<PostResponseDto> postsPage = postService.getPostsByUserId(bloggerId, page - 1, limit,userId);
+        Page<PostResponseDto> postsPage = postService.getPostsByUserId(bloggerId, page - 1, limit, userId);
 
         Map<String, Object> response = new HashMap<>();
         response.put("posts", postsPage.getContent());
@@ -128,6 +128,6 @@ public class PostController {
         response.put("hasPrevious", feedPage.hasPrevious());
 
         return ResponseEntity.ok(response);
-        }
+    }
 
 }

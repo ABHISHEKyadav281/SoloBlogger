@@ -55,9 +55,9 @@ public class S3FileStorageService {
                     .withCredentials(new AWSStaticCredentialsProvider(credentials))
                     .build();
 
-            System.out.println("✅ S3 client initialized. Bucket: " + bucketName + " | Region: " + region);
+            System.out.println("S3 client initialized. Bucket: " + bucketName + " | Region: " + region);
         } catch (Exception ex) {
-            System.err.println("❌ Failed to initialize S3 client: " + ex.getMessage());
+            System.err.println("Failed to initialize S3 client: " + ex.getMessage());
             throw new RuntimeException("Could not initialize AWS S3 client", ex);
         }
     }
@@ -87,7 +87,7 @@ public class S3FileStorageService {
             );
 
             s3Client.putObject(putRequest);
-            System.out.println("✅ Image uploaded to S3: " + s3Key);
+            System.out.println("Image uploaded to S3: " + s3Key);
 
             return s3Key;
 
@@ -104,9 +104,9 @@ public class S3FileStorageService {
     public void deleteFile(String s3Key) {
         try {
             s3Client.deleteObject(new DeleteObjectRequest(bucketName, s3Key));
-            System.out.println("✅ File deleted from S3: " + s3Key);
+            System.out.println("File deleted from S3: " + s3Key);
         } catch (Exception ex) {
-            System.err.println("❌ Could not delete file from S3: " + s3Key);
+            System.err.println("Could not delete file from S3: " + s3Key);
             throw new RuntimeException("Could not delete file from S3: " + s3Key, ex);
         }
     }
