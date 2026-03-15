@@ -35,7 +35,6 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // Search posts by title or content
     @Query("SELECT p FROM Post p WHERE " +
             "LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
-            "LOWER(p.content) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
             "LOWER(p.excerpt) LIKE LOWER(CONCAT('%', :search, '%'))")
     Page<Post> searchPosts(@Param("search") String search, Pageable pageable);
 
@@ -49,4 +48,22 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     // Find posts by tag
     @Query("SELECT p FROM Post p JOIN p.tags t WHERE t = :tag")
     Page<Post> findByTag(@Param("tag") String tag, Pageable pageable);
+
+    @Query("SELECT p FROM Post p WHERE p.id IN :ids ORDER BY p.createdAt DESC")
+    Page<Post> findByIdInOrderByCreatedAtDesc(@Param("ids") List<Long> ids, Pageable pageable);
+
+    // Fetch public posts whose IDs are NOT already in the feed
+    @Query("""
+                SELECT p FROM Post p
+                WHERE p.id NOT IN :excludedIds
+                AND p.status = :status
+                ORDER BY p.createdAt DESC
+            """)
+    Page<Post> findPublicPostsExcluding(
+            @Param("excludedIds") List<Long> excludedIds,
+            @Param("status") Post.PostStatus status,
+            Pageable pageable
+    );
+
+
 }
