@@ -12,10 +12,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface FeedRepository extends JpaRepository<FeedEntity, Long> {
 
-    // Used by CacheService to load a user's feed
     Page<FeedEntity> findByUserIdOrderByCreatedAtDesc(Long userId, Pageable pageable);
 
-    // Used by FanOutService to check for duplicates
     boolean existsByUserIdAndPostId(Long userId, Long postId);
 
     // Used when a post is deleted — clean up all feed entries for it

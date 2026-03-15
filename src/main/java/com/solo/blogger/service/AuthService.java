@@ -16,11 +16,10 @@ public class AuthService {
     private final JwtUtil jwtUtil;
     private final BCryptPasswordEncoder passwordEncoder;
 
-    // ✅ Constructor-based dependency injection
     public AuthService(UserRepository userRepository, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
         this.jwtUtil = jwtUtil;
-        this.passwordEncoder = new BCryptPasswordEncoder();  // ✅ Initializes BCrypt
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     public ResponseEntity<?> login (AuthRequest authRequest) {

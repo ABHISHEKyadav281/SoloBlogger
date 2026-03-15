@@ -17,7 +17,6 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class PostDto {
-
     private Long id;
 
     @NotBlank(message = "Title is required")
@@ -36,7 +35,6 @@ public class PostDto {
     @NotBlank(message = "Category is required")
     @Size(max = 50, message = "Category cannot exceed 50 characters")
     private String category;
-
     private List<String> tags;
 
     @NotNull(message = "Status is required")
@@ -44,11 +42,8 @@ public class PostDto {
 
     @NotNull(message = "Visibility is required")
     private Post.PostVisibility visibility;
-
     private LocalDateTime publishDate;
-
     private Boolean allowComments;
-
     private Boolean featured;
 
 }

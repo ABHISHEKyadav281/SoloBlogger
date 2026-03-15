@@ -35,7 +35,7 @@ public class FileStorageService {
             Files.createDirectories(this.fileStorageLocation);
 
         } catch (Exception ex) {
-            System.err.println("❌ Failed to create upload directory: " + uploadDir);
+            System.err.println("Failed to create upload directory: " + uploadDir);
             ex.printStackTrace();
             throw new RuntimeException("Could not create the directory where the uploaded files will be stored: " + uploadDir, ex);
         }
@@ -63,7 +63,7 @@ public class FileStorageService {
 
             ImageIO.write(jpegImage, "jpg", targetLocation.toFile());
 
-            System.out.println("✅ File converted and stored as JPEG: " + newFilename);
+            System.out.println("File converted and stored as JPEG: " + newFilename);
             return newFilename;
 
         } catch (IOException ex) {
@@ -90,9 +90,9 @@ public class FileStorageService {
         try {
             Path filePath = this.fileStorageLocation.resolve(fileName).normalize();
             Files.deleteIfExists(filePath);
-            System.out.println("✅ File deleted: " + fileName);
+            System.out.println("File deleted: " + fileName);
         } catch (IOException ex) {
-            System.err.println("❌ Could not delete file: " + fileName);
+            System.err.println("Could not delete file: " + fileName);
             throw new RuntimeException("Could not delete file " + fileName, ex);
         }
     }
@@ -102,7 +102,6 @@ public class FileStorageService {
             throw new RuntimeException("Failed to store empty file");
         }
 
-        // Check file size
         if (file.getSize() > MAX_FILE_SIZE) {
             throw new RuntimeException("File size exceeds maximum limit of 10MB");
         }

@@ -8,12 +8,9 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 public class CommentDto {
-
     private long id;
-
     private String content;
-
     private long postId;
-
     private Long parentId;
+
 }

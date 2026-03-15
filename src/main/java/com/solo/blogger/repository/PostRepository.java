@@ -13,46 +13,36 @@ import java.util.List;
 @Repository
 public interface PostRepository extends JpaRepository<Post, Long> {
 
-    // Find by status
     Page<Post> findByStatus(Post.PostStatus status, Pageable pageable);
 
-    // Find by category
     Page<Post> findByCategory(String category, Pageable pageable);
 
-    // Find featured posts
     Page<Post> findByFeaturedTrue(Pageable pageable);
 
-    // Find featured posts with specific status
     Page<Post> findByFeaturedTrueAndStatus(Post.PostStatus status, Pageable pageable);
 
-    // Find by category and featured
     Page<Post> findByCategoryAndFeatured(String category, Boolean featured, Pageable pageable);
 
-    // Find by user ID
     @Query("SELECT p FROM Post p WHERE p.userId = :userId")
     Page<Post> findByUserId(@Param("userId") Long userId, Pageable pageable);
 
-    // Search posts by title or content
     @Query("SELECT p FROM Post p WHERE " +
             "LOWER(p.title) LIKE LOWER(CONCAT('%', :search, '%')) OR " +
             "LOWER(p.excerpt) LIKE LOWER(CONCAT('%', :search, '%'))")
     Page<Post> searchPosts(@Param("search") String search, Pageable pageable);
 
-    // Count posts by user
     @Query("SELECT COUNT(p) FROM Post p WHERE p.id IN :postIds")
     Long countLikesForPostIds(List<Long> postIds);
 
     @Query("SELECT p.id FROM Post p WHERE p.userId = :userId")
     List<Long> postIdsByUserId(@Param("userId") Long userId);
 
-    // Find posts by tag
     @Query("SELECT p FROM Post p JOIN p.tags t WHERE t = :tag")
     Page<Post> findByTag(@Param("tag") String tag, Pageable pageable);
 
     @Query("SELECT p FROM Post p WHERE p.id IN :ids ORDER BY p.createdAt DESC")
     Page<Post> findByIdInOrderByCreatedAtDesc(@Param("ids") List<Long> ids, Pageable pageable);
 
-    // Fetch public posts whose IDs are NOT already in the feed
     @Query("""
                 SELECT p FROM Post p
                 WHERE p.id NOT IN :excludedIds

@@ -8,29 +8,29 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value="/api/comment/v1")
+@RequestMapping(value = "/api/comment/v1")
 public class CommentController {
 
     @Autowired
     private CommentService commentService;
 
     @PostMapping(value = "/addComment")
-    public ResponseEntity<?>AddComment(@RequestBody CommentDto comment,@RequestHeader("userId") Long userId){
-        return ResponseEntity.ok(ApiResponseDto.success(commentService.addComment(comment,userId)));
+    public ResponseEntity<?> AddComment(@RequestBody CommentDto comment, @RequestHeader("userId") Long userId) {
+        return ResponseEntity.ok(ApiResponseDto.success(commentService.addComment(comment, userId)));
     }
 
     @GetMapping(value = "/getComments")
-    public ResponseEntity<?>getCommentsForPost(@RequestParam("postId") long postId){
+    public ResponseEntity<?> getCommentsForPost(@RequestParam("postId") long postId) {
         return ResponseEntity.ok(commentService.getCommentsForPost(postId));
     }
 
     @GetMapping(value = "/getComments/replies")
-    public ResponseEntity<?>getRepliesForComments(@RequestParam("parentId") Long parentId){
+    public ResponseEntity<?> getRepliesForComments(@RequestParam("parentId") Long parentId) {
         return ResponseEntity.ok(commentService.getRepliesForComments(parentId));
     }
 
     @DeleteMapping(value = "/deleteComment")
-    public ResponseEntity<?>deleteComment(@RequestBody CommentDto commentDto){
+    public ResponseEntity<?> deleteComment(@RequestBody CommentDto commentDto) {
         return ResponseEntity.ok(ApiResponseDto.success("Comment deleted succesfully!"));
     }
 }

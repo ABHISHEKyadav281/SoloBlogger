@@ -33,7 +33,7 @@ public class PostResponseDto {
     private boolean isIsLiked;
     private boolean isBookmarked;
 
-    // User info
+
     private UserSummaryDto author;
 
     @Data

@@ -18,12 +18,10 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private Long JWT_EXPIRATION;
 
-//    private final String SECRET_KEY = "asdfghjklqwertyuiopzxcvbnmqwertyuiopasdfghjkl";
-
-    public SuccessResponse generateToken(String username,Long userId) {
+    public SuccessResponse generateToken(String username, Long userId) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
-        String token=createToken(claims, username);
+        String token = createToken(claims, username);
         return SuccessResponse.builder().statusCode("200").data(token).build();
     }
 

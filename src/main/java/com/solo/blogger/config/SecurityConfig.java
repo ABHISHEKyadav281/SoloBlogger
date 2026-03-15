@@ -1,6 +1,5 @@
 package com.solo.blogger.config;
 
-
 import com.solo.blogger.filter.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -23,8 +22,7 @@ import java.util.Arrays;
 @EnableWebSecurity
 public class SecurityConfig {
     @Autowired
-    private  JwtRequestFilter jwtFilter;
-
+    private JwtRequestFilter jwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -43,7 +41,6 @@ public class SecurityConfig {
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
-
 
     @Bean
     public AuthenticationManager authenticationManager(

@@ -11,14 +11,14 @@ import java.util.Optional;
 
 
 @Repository
-public interface SubscriptionRepository extends JpaRepository<Subscription,Long> {
+public interface SubscriptionRepository extends JpaRepository<Subscription, Long> {
 
-    Optional<Subscription> findByBloggerIdAndSubscriberId(Long bloggerId,Long subscriberId);
+    Optional<Subscription> findByBloggerIdAndSubscriberId(Long bloggerId, Long subscriberId);
 
     @Query("Select s.subscriberId from Subscription s where s.bloggerId = :bloggerId")
     List<Long> findByBloggerId(Long bloggerId);
 
-    boolean existsByBloggerIdAndSubscriberId(Long bloggerId,Long subscriberId);
+    boolean existsByBloggerIdAndSubscriberId(Long bloggerId, Long subscriberId);
 
     long countByBloggerId(long userId);
 
