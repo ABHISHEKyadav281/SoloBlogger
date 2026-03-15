@@ -23,4 +23,7 @@ public interface SubscriptionRepository extends JpaRepository<Subscription,Long>
     long countByBloggerId(long userId);
 
     long countBySubscriberId(long userId);
+
+    @Query("Select s.subscriberId from Subscription s where s.bloggerId = :userId")
+    List<Long> findSubscriberIdByBloggerId(Long userId);
 }

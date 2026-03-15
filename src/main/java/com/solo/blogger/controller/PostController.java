@@ -4,6 +4,7 @@ import com.solo.blogger.dto.ApiResponseDto;
 import com.solo.blogger.dto.apiResponse.PostResponseDto;
 import com.solo.blogger.dto.apiRequest.PostDto;
 import com.solo.blogger.entity.Post;
+import com.solo.blogger.service.FanOutService;
 import com.solo.blogger.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,6 +22,7 @@ import java.util.Map;
 public class PostController {
 
     private final PostService postService;
+    private final FanOutService fanOutService;
 
     @PostMapping(value = "/createPost", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> CreatePostAlt(
@@ -29,6 +31,7 @@ public class PostController {
     ) {
         try {
             Post savedPost = postService.createPost(postDto, userId);
+            fanOutService.fanOut(savedPost);
             return ResponseEntity.ok(ApiResponseDto.success("Post created successfully!"));
 
         } catch (Exception e) {
@@ -39,7 +42,6 @@ public class PostController {
     }
 
 
-    // fetch details from post table and regarding every post need to fetch image from immemory files based on image url
     @GetMapping("/allposts")
     public ResponseEntity<Map<String, Object>> getAllPosts(
             @RequestParam(defaultValue = "1") int page,
@@ -77,7 +79,6 @@ public class PostController {
         return ResponseEntity.ok(response);
     }
 
-//    details from post table &image from file system
     @GetMapping("/posts/{postId}")
     public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long postId,
                                                        @RequestAttribute("userId") Long userId) {
@@ -103,4 +104,30 @@ public class PostController {
 
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/feed")
+    public ResponseEntity<Map<String, Object>> getFeed(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Boolean featured,
+            @RequestParam(required = false) String status,
+            @RequestAttribute("userId") Long userId
+    ) {
+        Page<PostResponseDto> feedPage = postService.getFeedForUser(
+                userId, page - 1, limit, category, search, featured, status
+        );
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("posts", feedPage.getContent());
+        response.put("currentPage", page);
+        response.put("totalPages", feedPage.getTotalPages());
+        response.put("totalPosts", feedPage.getTotalElements());
+        response.put("hasMore", feedPage.hasNext());
+        response.put("hasPrevious", feedPage.hasPrevious());
+
+        return ResponseEntity.ok(response);
+        }
+
 }
