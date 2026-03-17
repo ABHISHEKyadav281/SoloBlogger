@@ -258,11 +258,10 @@ public class PostService {
         return builder.build();
     }
 
-
     public Page<PostResponseDto> getFeedForUser(Long userId, int page, int limit, String category, String search, Boolean featured, String status) {
 
         boolean hasFilter = (category != null || search != null
-                || featured != null || status != null);
+                || featured != null );
 
         if (hasFilter) {
             return getAllPosts(page, limit, category,

@@ -13,11 +13,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.imageio.ImageIO;
-import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -40,9 +36,7 @@ public class S3FileStorageService {
     @Value("${aws.s3.folder:posts/}")
     private String folder;
 
-    private static final long MAX_FILE_SIZE   = 10 * 1024 * 1024; // 10 MB
-//    private static final int  MAX_IMAGE_WIDTH = 3840;              // 4K max width
-//    private static final int  MAX_IMAGE_HEIGHT= 2160;              // 4K max height
+    private static final long MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
 
     private AmazonS3 s3Client;
 
@@ -65,15 +59,21 @@ public class S3FileStorageService {
     public String storeFile(MultipartFile file, String postTitle) {
         validateFile(file);
 
-        String s3Key = generateS3Key(postTitle);
+        // Get original file extension from content type
+        String extension = getExtensionFromContentType(file.getContentType());
+        String s3Key = generateS3Key(postTitle, extension);
 
         try {
-            byte[] imageBytes = convertToJpeg(file);
+            // ── JPEG conversion commented out ──────────────────────────
+            // byte[] imageBytes = convertToJpeg(file);
+            // String contentType = "image/jpeg";
+            // ───────────────────────────────────────────────────────────
 
-            String contentType = "image/jpeg";
-            if (imageBytes == file.getBytes()) {
-                contentType = file.getContentType() != null ? file.getContentType() : "image/jpeg";
-            }
+            // Upload original file as-is
+            byte[] imageBytes = file.getBytes();
+            String contentType = file.getContentType() != null
+                    ? file.getContentType()
+                    : "application/octet-stream";
 
             ObjectMetadata metadata = new ObjectMetadata();
             metadata.setContentType(contentType);
@@ -92,10 +92,9 @@ public class S3FileStorageService {
             return s3Key;
 
         } catch (IOException ex) {
-            throw new RuntimeException("Failed to process and upload image to S3: " + ex.getMessage(), ex);
+            throw new RuntimeException("Failed to upload image to S3: " + ex.getMessage(), ex);
         }
     }
-
 
     public String getFileUrl(String s3Key) {
         return String.format("https://%s.s3.%s.amazonaws.com/%s", bucketName, region, s3Key);
@@ -111,11 +110,46 @@ public class S3FileStorageService {
         }
     }
 
+    // ── JPEG conversion logic (commented out) ─────────────────────────
+    //
+    // private byte[] convertToJpeg(MultipartFile file) throws IOException {
+    //     byte[] fileBytes = file.getBytes();
+    //
+    //     BufferedImage originalImage = null;
+    //     try {
+    //         originalImage = ImageIO.read(new ByteArrayInputStream(fileBytes));
+    //     } catch (Exception e) {
+    //         System.err.println("ImageIO failed: " + e.getMessage());
+    //     }
+    //
+    //     BufferedImage jpegImage = new BufferedImage(
+    //             originalImage.getWidth(),
+    //             originalImage.getHeight(),
+    //             BufferedImage.TYPE_INT_RGB
+    //     );
+    //     Graphics2D g2d = jpegImage.createGraphics();
+    //     g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+    //     g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+    //     g2d.setColor(Color.WHITE);
+    //     g2d.fillRect(0, 0, jpegImage.getWidth(), jpegImage.getHeight());
+    //     g2d.drawImage(originalImage, 0, 0, null);
+    //     g2d.dispose();
+    //
+    //     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    //     boolean written = ImageIO.write(jpegImage, "jpeg", outputStream);
+    //     if (!written) {
+    //         throw new RuntimeException("Failed to write image as JPEG.");
+    //     }
+    //
+    //     return outputStream.toByteArray();
+    // }
+    //
+    // ──────────────────────────────────────────────────────────────────
 
     private static final int TITLE_WORD_LIMIT = 3;
 
-    private String generateS3Key(String postTitle) {
-
+    // Updated to accept extension instead of hardcoding .jpeg
+    private String generateS3Key(String postTitle, String extension) {
         String[] words = postTitle.trim().split("\\s+");
         int wordCount = Math.min(words.length, TITLE_WORD_LIMIT);
         StringBuilder titleBuilder = new StringBuilder();
@@ -125,54 +159,26 @@ public class S3FileStorageService {
         }
 
         String shortTitle = titleBuilder.toString();
-
         String timestamp = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
 
-        String filename = "post-" + shortTitle + "-" + timestamp + ".jpeg";
+        // Uses original extension instead of hardcoded .jpeg
+        String filename = "post-" + shortTitle + "-" + timestamp + "." + extension;
         return folder + filename;
     }
 
-
-    private byte[] convertToJpeg(MultipartFile file) throws IOException {
-        byte[] fileBytes = file.getBytes();
-
-        BufferedImage originalImage = null;
-        try {
-            originalImage = ImageIO.read(new ByteArrayInputStream(fileBytes));
-        } catch (Exception e) {
-            System.err.println("⚠️ ImageIO failed: " + e.getMessage());
-        }
-
-//        if (originalImage.getWidth() > MAX_IMAGE_WIDTH || originalImage.getHeight() > MAX_IMAGE_HEIGHT) {
-//            throw new RuntimeException(
-//                    String.format("Image dimensions %dx%d exceed maximum allowed size of %dx%d pixels.",
-//                            originalImage.getWidth(), originalImage.getHeight(), MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT)
-//            );
-//        }
-
-        BufferedImage jpegImage = new BufferedImage(
-                originalImage.getWidth(),
-                originalImage.getHeight(),
-                BufferedImage.TYPE_INT_RGB
-        );
-        Graphics2D g2d = jpegImage.createGraphics();
-        g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-        g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        g2d.setColor(Color.WHITE);
-        g2d.fillRect(0, 0, jpegImage.getWidth(), jpegImage.getHeight());
-        g2d.drawImage(originalImage, 0, 0, null);
-        g2d.dispose();
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        boolean written = ImageIO.write(jpegImage, "jpeg", outputStream);
-        if (!written) {
-            throw new RuntimeException("Failed to write image as JPEG.");
-        }
-
-        return outputStream.toByteArray();
+    // Maps content type to file extension
+    private String getExtensionFromContentType(String contentType) {
+        if (contentType == null) return "bin";
+        return switch (contentType) {
+            case "image/jpeg" -> "jpg";
+            case "image/png"  -> "png";
+            case "image/gif"  -> "gif";
+            case "image/webp" -> "webp";
+            case "image/svg+xml" -> "svg";
+            default -> "jpg";
+        };
     }
-
 
     private void validateFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
@@ -190,6 +196,5 @@ public class S3FileStorageService {
         if (contentType == null || !contentType.startsWith("image/")) {
             throw new RuntimeException("Invalid file type: '" + contentType + "'. Only image files are allowed.");
         }
-
     }
 }
