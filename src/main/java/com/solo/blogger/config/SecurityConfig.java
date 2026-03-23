@@ -1,6 +1,7 @@
 package com.solo.blogger.config;
 
 import com.solo.blogger.filter.JwtRequestFilter;
+import com.solo.blogger.utils.OAuth2SuccessHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,6 +25,10 @@ public class SecurityConfig {
     @Autowired
     private JwtRequestFilter jwtFilter;
 
+    @Autowired
+    private OAuth2SuccessHandler successHandler;
+
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -36,6 +41,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html").permitAll()
                         .requestMatchers("/api/auth/v1/signup", "/api/auth/v1/signin").permitAll()
                         .anyRequest().authenticated()
+                ).oauth2Login(oauth -> oauth
+                        .successHandler(successHandler)
                 );
 
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);

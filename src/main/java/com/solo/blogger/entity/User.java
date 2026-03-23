@@ -6,7 +6,6 @@ import lombok.*;
 @Entity
 @Table(name = "users")
 
-
 @Getter
 @Setter
 @Builder
@@ -23,7 +22,13 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "profile_picture")
+    private String profilePicture;
+
+    @Column(name = "oauth_user")
+    private boolean oauthUser;
+
+    @Column(nullable = true)
     private String password;
 
 }
