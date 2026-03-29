@@ -35,11 +35,15 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+//                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html").permitAll()
-                        .requestMatchers("/api/auth/v1/signup", "/api/auth/v1/signin").permitAll()
+                                "/swagger-ui.html",
+                                "/api/auth/v1/signup",
+                                "/api/auth/v1/signin",
+                                "/oauth2/**",
+                                "/login/**" ).permitAll()
                         .anyRequest().authenticated()
                 ).oauth2Login(oauth -> oauth
                         .successHandler(successHandler)
