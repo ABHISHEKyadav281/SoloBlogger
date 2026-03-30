@@ -1,7 +1,7 @@
 package com.solo.blogger.controller;
 
 import com.solo.blogger.dto.apiResponse.AuthRequest;
-import com.solo.blogger.dto.apiResponse.UserDto;
+import com.solo.blogger.dto.apiRequest.UserDto;
 import com.solo.blogger.repository.UserRepository;
 import com.solo.blogger.service.AuthService;
 import com.solo.blogger.service.UserService;

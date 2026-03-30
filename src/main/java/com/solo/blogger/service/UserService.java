@@ -1,7 +1,8 @@
 package com.solo.blogger.service;
 
 
-import com.solo.blogger.dto.apiResponse.UserDto;
+import com.solo.blogger.dto.apiRequest.UserDetailsReqDto;
+import com.solo.blogger.dto.apiRequest.UserDto;
 import com.solo.blogger.dto.apiResponse.UserDetailsDto;
 import com.solo.blogger.dto.responseFactory.SuccessResponse;
 import com.solo.blogger.entity.User;
@@ -53,12 +54,27 @@ public class UserService {
         Long totLikes = postRepository.countLikesForPostIds(postIds);
         UserDetailsDto userDetail = UserDetailsDto.builder().username(user.getUsername()).totalLikes(totLikes)
                 .email(user.getEmail())
+                .username(user.getUsername())
+                .profileImage(user.getProfilePicture())
+                .name(user.getName())
+                .bio(user.getBio())
                 .posts(postCount)
                 .followers(followers)
                 .following(following)
                 .isSubscribed(isFollowing)
                 .build();
         return ResponseEntity.ok().body(SuccessResponse.builder().statusCode("200").data(userDetail).build());
+    }
+
+    public ResponseEntity<?> modifyUserDetails(UserDetailsReqDto req, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("user not found"));
+        user.setUsername(req.getUsername());
+        user.setName(req.getName());
+        user.setEmail(req.getEmail());
+        user.setBio(req.getBio());
+        user.setProfilePicture(req.getProfilePicUrl());
+        userRepository.save(user);
+        return ResponseEntity.ok().body(SuccessResponse.builder().statusCode("200").data("profile updated successfully").build());
     }
 
 }

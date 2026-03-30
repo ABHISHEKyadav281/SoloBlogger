@@ -10,16 +10,13 @@ import com.solo.blogger.entity.User;
 import com.solo.blogger.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.Resource;
 import org.springframework.data.domain.*;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 
 @Service
@@ -47,7 +44,7 @@ public class PostService {
     private NotificationService notificationService;
 
     @Autowired
-    private S3FileStorageService s3FileStorageService;
+    private S3Service s3Service;
 
     @Autowired
     private SubscriptionRepository subscriptionRepository;
@@ -65,8 +62,8 @@ public class PostService {
 
         String imageUrl = "";
         if (postDto.getCoverImage() != null && !postDto.getCoverImage().isEmpty()) {
-            String s3Key = s3FileStorageService.storeFile(postDto.getCoverImage(), postDto.getTitle());
-            imageUrl = s3FileStorageService.getFileUrl(s3Key);
+            String s3Key = s3Service.storeFile(postDto.getCoverImage(), postDto.getTitle());
+            imageUrl = s3Service.getFileUrl(s3Key);
         }
 
         Post post = Post.builder()

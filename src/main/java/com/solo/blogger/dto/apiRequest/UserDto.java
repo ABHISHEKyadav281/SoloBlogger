@@ -1,4 +1,4 @@
-package com.solo.blogger.dto.apiResponse;
+package com.solo.blogger.dto.apiRequest;
 
 
 import jakarta.validation.constraints.Email;

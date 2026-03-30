@@ -16,14 +16,12 @@ public class UserDetailsDto {
     private String username;
     private String profileImage;
     private String email;
-    private String firstName;
-    private String lastName;
+    private String name;
     private String bio;
-    private String location;
-    private String website;
     private Long followers;
     private Long following;
     private Long posts;
     private Long totalLikes;
     private boolean isSubscribed;
+    private String profilePictureUrl;
 }
