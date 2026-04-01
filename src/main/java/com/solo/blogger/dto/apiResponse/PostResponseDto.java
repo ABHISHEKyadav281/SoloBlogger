@@ -44,6 +44,8 @@ public class PostResponseDto {
         private Long id;
         private String username;
         private String email;
-        private Long followers;;
+        private Long followers;
+        private String profilePictureUrl;
+        private String name;
     }
 }

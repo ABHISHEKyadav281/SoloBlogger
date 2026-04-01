@@ -14,7 +14,7 @@ public class UserDetailsDto {
 
     private Long id;
     private String username;
-    private String profileImage;
+    private String profilePictureUrl;
     private String email;
     private String name;
     private String bio;
@@ -23,5 +23,4 @@ public class UserDetailsDto {
     private Long posts;
     private Long totalLikes;
     private boolean isSubscribed;
-    private String profilePictureUrl;
 }

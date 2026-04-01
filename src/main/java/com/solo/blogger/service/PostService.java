@@ -210,6 +210,8 @@ public class PostService {
                         .username(user.getUsername())
                         .email(user.getEmail())
                         .followers(followersCount)
+                        .profilePictureUrl(user.getProfilePicture())
+                        .name(user.getName())
                         .build());
 
         return builder.build();
@@ -244,6 +246,8 @@ public class PostService {
                         .username(user.getUsername())
                         .email(user.getEmail())
                         .followers(followersCount)
+                        .profilePictureUrl(user.getProfilePicture())
+                        .name(user.getName())
                         .build());
 
         if (currentUserId != null) {

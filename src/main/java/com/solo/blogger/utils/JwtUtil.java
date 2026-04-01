@@ -22,9 +22,11 @@ public class JwtUtil {
     private Long JWT_EXPIRATION;
 
     // ✅ Used by normal email/password login
-    public SuccessResponse generateToken(String email, Long userId) {
+    public SuccessResponse generateToken(String email, Long userId,String profilePictureUrl) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
+        claims.put("email", email);
+        claims.put("profilePictureUrl", profilePictureUrl);
         String token = createToken(claims, email);
         return SuccessResponse.builder().statusCode("200").data(token).build();
     }
@@ -36,7 +38,7 @@ public class JwtUtil {
         claims.put("userId", userId);
         claims.put("userName", username);
         claims.put("email", email);
-        claims.put("picture", picture);
+        claims.put("profilePictureUrl", picture);
         claims.put("oauth", true);
         return createToken(claims, username);
     }

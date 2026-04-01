@@ -173,7 +173,7 @@ public class S3Service {
         PutObjectRequest putObjectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
-                .contentType(request.getContentType())
+//                .contentType(request.getContentType())
                 .build();
 
         PutObjectPresignRequest presignRequest = PutObjectPresignRequest.builder()

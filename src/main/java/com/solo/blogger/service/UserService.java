@@ -55,7 +55,7 @@ public class UserService {
         UserDetailsDto userDetail = UserDetailsDto.builder().username(user.getUsername()).totalLikes(totLikes)
                 .email(user.getEmail())
                 .username(user.getUsername())
-                .profileImage(user.getProfilePicture())
+                .profilePictureUrl(user.getProfilePicture())
                 .name(user.getName())
                 .bio(user.getBio())
                 .posts(postCount)
