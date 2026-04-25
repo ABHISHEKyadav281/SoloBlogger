@@ -7,6 +7,7 @@ import com.solo.blogger.entity.Notification;
 import com.solo.blogger.repository.NotificationRepository;
 import com.solo.blogger.repository.SubscriptionRepository;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,32 +17,28 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class NotificationService {
 
-    @Autowired
-    private NotificationRepository notificationRepository;
+    private final NotificationRepository notificationRepository;
+    private final SubscriptionRepository subscriptionRepository;
 
-    @Autowired
-    private SubscriptionRepository subscriptionRepository;
-
-    public ApiResponseDto<?>getNotifications(Long userId, int page, int limit) {
-        if(userId == null)  throw new RuntimeException("User id is null");
-        Page<Notification> notifications=notificationRepository.findAllByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(page,limit));
-        NotificationResponse userNotifications = NotificationResponse.builder()
+    public NotificationResponse getNotifications(Long userId, int page, int limit) {
+        if (userId == null) throw new RuntimeException("User id is null");
+        Page<Notification> notifications = notificationRepository.findAllByUserIdOrderByCreatedAtDesc(userId, PageRequest.of(page, limit));
+        return NotificationResponse.builder()
                 .notifications(notifications.getContent())
                 .unreadCount(notifications
                         .getTotalElements()).build();
-        return ApiResponseDto.success(userNotifications);
     }
 
-    public ApiResponseDto<?>getUnreadCount(Long userId) {
-        if(userId == null)  throw new RuntimeException("User id is null");
-        Long count=notificationRepository.countByUserIdAndIsReadFalse(userId);
-        NotificationResponse userNotifications = NotificationResponse.builder().notifications(null).unreadCount(count).build();
-        return ApiResponseDto.success(userNotifications);
+    public NotificationResponse getUnreadCount(Long userId) {
+        if (userId == null) throw new RuntimeException("User id is null");
+        Long count = notificationRepository.countByUserIdAndIsReadFalse(userId);
+        return NotificationResponse.builder().notifications(null).unreadCount(count).build();
     }
 
-    public void notificationEntry(Long userId,Long postId,String title,String authorName) {
+    public void notificationEntry(Long userId, Long postId, String title, String authorName) {
         if (userId == null) throw new RuntimeException("User id is null");
         List<Long> followerIds = subscriptionRepository.findByBloggerId(userId);
         if (followerIds == null || followerIds.isEmpty()) {

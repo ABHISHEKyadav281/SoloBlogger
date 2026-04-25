@@ -1,5 +1,6 @@
 package com.solo.blogger.service;
 
+import com.solo.blogger.dto.ApiResponseDto;
 import com.solo.blogger.dto.apiResponse.PostCreatedEvent;
 import com.solo.blogger.dto.apiResponse.PostResponseDto;
 import com.solo.blogger.dto.apiRequest.PostDto;
@@ -17,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -137,7 +140,7 @@ public class PostService {
 
 
     @Transactional
-    public PostResponseDto getPostById(Long id, Long userId) {
+    public ApiResponseDto<PostResponseDto> getPostById(Long id, Long userId) {
         try {
             Post post = postRepository.findById(id)
                     .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
@@ -150,7 +153,7 @@ public class PostService {
             PostLike like = postLikeRepository.findByPostIdAndUserId(post.getId(), userId).orElse(null);
             if (like != null) isLiked = true;
             Long commentsCount = commentRepository.countByPostId(post.getId());
-            return convertToResponseDto(post, isLiked, userId, commentsCount);
+            return ApiResponseDto.success(convertToResponseDto(post, isLiked, userId, commentsCount));
 
         } catch (RuntimeException e) {
             System.err.println("Error fetching post: " + e.getMessage());

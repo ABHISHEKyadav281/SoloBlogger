@@ -32,7 +32,7 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
-    public ResponseEntity<?> register(UserDto userDto) {
+    public String register(UserDto userDto) {
 
         User user = User.builder()
                 .username(userDto.getUsername())
@@ -41,10 +41,10 @@ public class UserService {
                 .build();
 
         userRepository.save(user);
-        return ResponseEntity.ok().body(SuccessResponse.builder().statusCode("202").data("User Registered successfully").build());
+        return "User Registered successfully";
     }
 
-    public ResponseEntity<?> userDetails(Long bloggerId, Long userId) {
+    public UserDetailsDto userDetails(Long bloggerId, Long userId) {
         User user = userRepository.findById(bloggerId).orElseThrow(() -> new RuntimeException("user not found"));
         List<Long> postIds = postRepository.postIdsByUserId(bloggerId);
         Long postCount = (long) postIds.size();
@@ -52,7 +52,7 @@ public class UserService {
         Long following = subscribedRepository.countBySubscriberId(bloggerId);
         boolean isFollowing = subscribedRepository.existsByBloggerIdAndSubscriberId(bloggerId, userId);
         Long totLikes = postRepository.countLikesForPostIds(postIds);
-        UserDetailsDto userDetail = UserDetailsDto.builder().username(user.getUsername()).totalLikes(totLikes)
+        return UserDetailsDto.builder().username(user.getUsername()).totalLikes(totLikes)
                 .email(user.getEmail())
                 .username(user.getUsername())
                 .profilePictureUrl(user.getProfilePicture())
@@ -63,10 +63,9 @@ public class UserService {
                 .following(following)
                 .isSubscribed(isFollowing)
                 .build();
-        return ResponseEntity.ok().body(SuccessResponse.builder().statusCode("200").data(userDetail).build());
     }
 
-    public ResponseEntity<?> modifyUserDetails(UserDetailsReqDto req, Long userId) {
+    public String modifyUserDetails(UserDetailsReqDto req, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("user not found"));
         user.setUsername(req.getUsername());
         user.setName(req.getName());
@@ -74,7 +73,7 @@ public class UserService {
         user.setBio(req.getBio());
         user.setProfilePicture(req.getProfilePicUrl());
         userRepository.save(user);
-        return ResponseEntity.ok().body(SuccessResponse.builder().statusCode("200").data("profile updated successfully").build());
+        return "profile updated successfully";
     }
 
 }

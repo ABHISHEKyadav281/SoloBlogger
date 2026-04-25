@@ -1,5 +1,6 @@
 package com.solo.blogger.controller;
 
+import com.solo.blogger.dto.ApiResponseDto;
 import com.solo.blogger.dto.apiResponse.AuthRequest;
 import com.solo.blogger.dto.apiRequest.UserDto;
 import com.solo.blogger.repository.UserRepository;
@@ -31,12 +32,12 @@ public class AuthController {
 
     @PostMapping(value = "signup")
     public ResponseEntity<?> Register(@RequestBody UserDto userDto) {
-        return userService.register(userDto);
+        return ResponseEntity.ok().body(ApiResponseDto.success(userService.register(userDto)));
     }
 
     @PostMapping("/signin")
     public ResponseEntity<?> login(@RequestBody AuthRequest authRequest) {
-        return authService.login(authRequest);
+        return ResponseEntity.ok().body(ApiResponseDto.success(authService.login(authRequest)));
 
     }
 

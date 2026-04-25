@@ -3,6 +3,7 @@ package com.solo.blogger.controller;
 import com.solo.blogger.dto.ApiResponseDto;
 import com.solo.blogger.dto.apiResponse.PostResponseDto;
 import com.solo.blogger.service.UserActionService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -11,22 +12,22 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/api/user/action/")
+@RequiredArgsConstructor
 public class UserActionController {
 
-    @Autowired
-    private UserActionService userActionService;
+    private final UserActionService userActionService;
 
     @PostMapping("/bookmark")
     public ResponseEntity<?> bookmarkPost(@RequestParam Long postId,
                                           @RequestAttribute("userId") Long userId) {
         userActionService.bookmarkPost(postId, userId);
-        return ResponseEntity.ok(ApiResponseDto.success("Post bookmarked successfully"));
+        return ResponseEntity.ok().body(ApiResponseDto.success("Post bookmarked successfully"));
     }
 
     @GetMapping("/bookmarked/posts")
     public ResponseEntity<?> getBookmarkedPosts(@RequestAttribute("userId") Long userId) {
         List<PostResponseDto> response = userActionService.getBookmarkedPosts(userId);
-        return ResponseEntity.ok(ApiResponseDto.success(response));
+        return ResponseEntity.ok().body(ApiResponseDto.success(response));
     }
 
     @PostMapping("/unbookmark")

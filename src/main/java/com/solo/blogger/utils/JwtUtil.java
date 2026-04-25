@@ -22,13 +22,12 @@ public class JwtUtil {
     private Long JWT_EXPIRATION;
 
     // ✅ Used by normal email/password login
-    public SuccessResponse generateToken(String email, Long userId,String profilePictureUrl) {
+    public String generateToken(String email, Long userId,String profilePictureUrl) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId);
         claims.put("email", email);
         claims.put("profilePictureUrl", profilePictureUrl);
-        String token = createToken(claims, email);
-        return SuccessResponse.builder().statusCode("200").data(token).build();
+        return createToken(claims, email);
     }
 
     // ✅ Used by OAuth2 (Google login) — returns raw token string

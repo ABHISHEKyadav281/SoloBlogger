@@ -1,5 +1,6 @@
 package com.solo.blogger.service;
 
+import com.solo.blogger.dto.ApiResponseDto;
 import com.solo.blogger.dto.apiRequest.CommentDto;
 import com.solo.blogger.dto.apiResponse.CommentResponseDto;
 import com.solo.blogger.dto.apiResponse.UserDetailsDto;
@@ -9,25 +10,25 @@ import com.solo.blogger.entity.User;
 import com.solo.blogger.repository.CommentRepository;
 import com.solo.blogger.repository.PostRepository;
 import com.solo.blogger.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CommentService {
 
-    @Autowired
-    private CommentRepository commentRepository;
+    private final CommentRepository commentRepository;
 
-    @Autowired
-    private PostRepository postRepository;
+    private final PostRepository postRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
 
-    public String addComment(CommentDto commentDto, Long userId) {
+    public String  addComment(CommentDto commentDto, Long userId) {
 
         Post post = postRepository.findById(commentDto.getPostId())
                 .orElseThrow(() -> new RuntimeException("Post not found with id: " + commentDto.getPostId()));
@@ -77,11 +78,11 @@ public class CommentService {
                                 .build())
                         .build())
                 .collect(Collectors.toList());
+
     }
 
     public List<Comment> getRepliesForComments(Long parentId) {
-        List<Comment> comments = commentRepository.findCommentsByParentId(parentId);
-        return comments;
+        return commentRepository.findCommentsByParentId(parentId);
     }
 
 }

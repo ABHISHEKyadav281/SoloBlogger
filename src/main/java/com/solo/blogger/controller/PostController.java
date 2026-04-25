@@ -17,12 +17,15 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/post/v1")
-@RequiredArgsConstructor
-@CrossOrigin(origins = "*")
 public class PostController {
 
     private final PostService postService;
     private final FanOutService fanOutService;
+
+    public PostController(PostService postService, FanOutService fanOutService) {
+        this.postService = postService;
+        this.fanOutService = fanOutService;
+    }
 
     @PostMapping(value = "/createPost", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> CreatePostAlt(
@@ -80,15 +83,15 @@ public class PostController {
     }
 
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<PostResponseDto> getPostById(@PathVariable Long postId,
+    public ResponseEntity<?> getPostById(@PathVariable Long postId,
                                                        @RequestAttribute("userId") Long userId) {
-        PostResponseDto post = postService.getPostById(postId, userId);
-        return ResponseEntity.ok(post);
+
+        return ResponseEntity.ok().body(postService.getPostById(postId, userId));
     }
 
 
     @GetMapping("/user")
-    public ResponseEntity<Map<String, Object>> getPostsByUser(
+    public ResponseEntity<?> getPostsByUser(
             @RequestParam("bloggerId") Long bloggerId,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
@@ -102,11 +105,11 @@ public class PostController {
         response.put("totalPages", postsPage.getTotalPages());
         response.put("totalPosts", postsPage.getTotalElements());
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok().body(response);
     }
 
     @GetMapping("/feed")
-    public ResponseEntity<Map<String, Object>> getFeed(
+    public ResponseEntity<?> getFeed(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(required = false) String category,
@@ -127,7 +130,7 @@ public class PostController {
         response.put("hasMore", feedPage.hasNext());
         response.put("hasPrevious", feedPage.hasPrevious());
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok().body(ApiResponseDto.success(response));
     }
 
 }

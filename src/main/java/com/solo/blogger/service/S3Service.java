@@ -161,7 +161,7 @@ public class S3Service {
         );
     }
 
-    public ResponseEntity<SuccessResponse<?>> generateProfileUploadUrl(UploadUrlRequest request) {
+    public UploadUrlResponse generateProfileUploadUrl(UploadUrlRequest request) {
 
         // 🔒 Validate file type
         if (!request.getContentType().startsWith("image/")) {
@@ -184,9 +184,7 @@ public class S3Service {
         PresignedPutObjectRequest presignedRequest =
                 presigner.presignPutObject(presignRequest);
 
-        return ResponseEntity.ok().body(SuccessResponse.builder().statusCode("200")
-                .data(UploadUrlResponse.builder().uploadUrl(presignedRequest.url().toString()).key(key).build())
-                .build());
+        return UploadUrlResponse.builder().uploadUrl(presignedRequest.url().toString()).key(key).build();
 
     }
 

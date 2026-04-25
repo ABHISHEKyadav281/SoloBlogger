@@ -22,7 +22,7 @@ public class AuthService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
-    public ResponseEntity<?> login (AuthRequest authRequest) {
+    public String login (AuthRequest authRequest) {
         User user = userRepository.findByUsername(authRequest.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -30,8 +30,7 @@ public class AuthService {
             throw new RuntimeException("Invalid Password");
         }
 
-        SuccessResponse res= jwtUtil.generateToken(user.getUsername(),user.getId(),user.getProfilePicture());
-        return ResponseEntity.ok(res);
+       return jwtUtil.generateToken(user.getUsername(),user.getId(),user.getProfilePicture());
     }
 }
 
